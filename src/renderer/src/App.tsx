@@ -1,5 +1,6 @@
 import Versions from './components/Versions'
 import Electron from './assets/electron.svg'
+import ConnectedBtn from './assets/thunder.png'
 import { useState, useEffect } from 'react'
 import { FaCog } from 'react-icons/fa'
 import { FaNetworkWired } from 'react-icons/fa6'
@@ -50,8 +51,17 @@ function App(): JSX.Element {
               </div>
             </div>
           </div>
+          <div className="flex pt-3 justify-center items-center btn-container">
+            <img
+              src={ConnectedBtn}
+              className="bg-primary rounded-full btn-pulse h-auto w-[150px] z-10"
+              alt="btn"
+            />
+            <div className="btn-shadow"></div>
+          </div>
         </div>
-        {/* <div>Child B</div> */}
+
+        <div className="flex justify-center items-center">B</div>
         <h2 className="mt-5">Current Window Width: {width}</h2>
       </div>
     </div>
