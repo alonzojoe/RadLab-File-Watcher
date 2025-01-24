@@ -1,24 +1,31 @@
 import ConnectedBtn from './assets/thunder.png'
+import DisconnectedBtn from './assets/off.png'
 import WatcherImg from './assets/Watcher.png'
 import { useState, useEffect } from 'react'
 import { FaCog } from 'react-icons/fa'
 import { FaNetworkWired } from 'react-icons/fa6'
 import { BsFillDeviceHddFill } from 'react-icons/bs'
 import Terminal from './components/Terminal'
+import useToggle from './hooks/useToggle'
+
 function App(): JSX.Element {
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
   const [count, setCount] = useState(0)
   const [width, setWidth] = useState<number>(window.innerWidth)
+  const [isOn, toggleIsOn] = useToggle(false)
 
   useEffect(() => {
-    const i = setInterval(() => {
-      setCount((prev) => prev + 1)
-    }, 1000)
+    let i: NodeJS.Timeout
+    if (isOn) {
+      i = setInterval(() => {
+        setCount((prev) => prev + 1)
+      }, 1000)
+    }
 
     return (): void => {
       clearInterval(i)
     }
-  }, [count])
+  }, [isOn])
 
   useEffect(() => {
     const handleResize = (): void => {
@@ -39,8 +46,14 @@ function App(): JSX.Element {
           <div className="flex justify-between items-center">
             <h2 className="text-3xl font-semibold py-3">RadLab File Watcher {width}</h2>
 
-            <label className="inline-flex items-center cursor-pointer">
-              <input type="checkbox" value="" className="sr-only peer" />
+            <label className="inline-flex items-center pointer-events-none ">
+              <input
+                className="cursor-pointer sr-only peer"
+                type="checkbox"
+                data-true-value={true}
+                data-false-value={false}
+                checked={isOn}
+              />
               <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none ring-0 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary dark:peer-checked:bg-primary"></div>
             </label>
           </div>
@@ -66,11 +79,12 @@ function App(): JSX.Element {
           </div>
           <div className="flex pt-3 justify-center items-center btn-container">
             <img
-              src={ConnectedBtn}
+              src={isOn ? ConnectedBtn : DisconnectedBtn}
               className="bg-primary rounded-full cursor-pointer btn-pulse h-auto w-[150px] z-10"
               alt="btn"
+              onClick={() => toggleIsOn()}
             />
-            <div className="btn-shadow"></div>
+            {isOn && <div className="btn-shadow"></div>}
           </div>
         </div>
         <div className="flex flex-col items-center justify-start">
@@ -78,7 +92,7 @@ function App(): JSX.Element {
             {/* <img src={WatcherImg} className="h-auto w-[630px]" alt="asd" /> */}
             <Terminal />
           </div>
-          <div className="flex justify-center items-center md:hidden">
+          <div className="flex justify-center items-center md:hidden mt-5">
             <Terminal />
           </div>
         </div>
