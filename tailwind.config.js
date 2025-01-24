@@ -11,7 +11,8 @@ export default {
         primaryBg: '#1A1B21',
         separator: '#25262C',
         textPrimary: '#E9E9E9',
-        textSecondary: '#B3B3B3'
+        textSecondary: '#B3B3B3',
+        terminalBg: '#34325A'
       },
       container: {
         center: true,

@@ -26,7 +26,7 @@ function App(): JSX.Element {
       <div className="container grid grid-cols-1 md:grid-cols-2 pt-5">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">RadLab File Watcher</h2>
+            <h2 className="text-xl font-semibold">RadLab File Watcher {width}</h2>
             <span>
               <FaCog className="text-2xl" />
             </span>
@@ -61,8 +61,18 @@ function App(): JSX.Element {
           </div>
         </div>
 
-        <div className="flex justify-center items-center">B</div>
-        <h2 className="mt-5">Current Window Width: {width}</h2>
+        <div className="flex justify-center items-center">
+          <div className="bg-separator w-full overflow-y-auto mt-8 rounded-lg h-40 p-2 mx-2">
+            <div className="text-green-500 text-sm font-semibold">File Watcher Started...</div>
+            <div className="text-red-500 text-sm font-semibold">File Watcher Started...</div>
+            <div className="text-red-500 text-sm font-semibold">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem incidunt fuga
+              veritatis animi saepe error voluptatibus aspernatur rem aperiam quia pariatur commodi
+              recusandae reprehenderit reiciendis cupiditate, excepturi ea dolorem est.
+            </div>
+            <div className="text-red-500 text-sm font-semibold">File Watcher Started...</div>
+          </div>
+        </div>
       </div>
     </div>
   )
