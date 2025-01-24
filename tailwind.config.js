@@ -7,7 +7,11 @@ export default {
         sans: ['Poppins', 'sans-serif']
       },
       colors: {
-        primary: '#FF6838'
+        primary: '#7854F9',
+        primaryBg: '#1A1B21',
+        separator: '#25262C',
+        textPrimary: '#E9E9E9',
+        textSecondary: '#B3B3B3'
       },
       container: {
         center: true,

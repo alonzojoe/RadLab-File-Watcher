@@ -27,7 +27,8 @@
     "electron-updater": "^6.1.7",
     "js-cookie": "^3.0.5",
     "moment": "^2.30.1",
-    "radlab-file-watcher": "file:"
+    "radlab-file-watcher": "file:",
+    "react-icons": "^5.4.0"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",
