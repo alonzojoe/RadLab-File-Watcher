@@ -12,6 +12,7 @@ function App(): JSX.Element {
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
   const [count, setCount] = useState(0)
   const [width, setWidth] = useState<number>(window.innerWidth)
+  const [height, setHeight] = useState<number>(window.innerHeight)
   const [isOn, toggleIsOn] = useToggle(false)
 
   useEffect(() => {
@@ -30,6 +31,18 @@ function App(): JSX.Element {
   useEffect(() => {
     const handleResize = (): void => {
       setWidth(window.innerWidth)
+    }
+
+    window.addEventListener('resize', handleResize)
+
+    return (): void => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleResize = (): void => {
+      setHeight(window.innerHeight)
     }
 
     window.addEventListener('resize', handleResize)
@@ -60,7 +73,9 @@ function App(): JSX.Element {
           <div className="border border-primary rounded-2xl py-3 text-center">
             <h1 className="font-bold text-5xl">00:21:25</h1>
           </div>
-          <h2 className="text-center text-textSecondary">Connecting time {count}</h2>
+          <h2 className="text-center text-textSecondary">
+            Connecting time {count} {height}
+          </h2>
           <div className="flex items-center justify-center">
             <div className="border border-primaryBg border-r-textSecondary pr-10 flex gap-3">
               <FaNetworkWired className="text-primary text-3xl" />
