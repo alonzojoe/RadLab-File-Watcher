@@ -6,6 +6,7 @@ import type { MappedDrives, TFileStable } from '../types/types'
 import moment from 'moment'
 import fs from 'fs'
 import fsExtra from 'fs-extra'
+import crypto from 'crypto'
 
 let watcher = null
 let mainWindow: BrowserWindow | null = null
@@ -115,4 +116,14 @@ const isFileStable = async ({ filepath, interval = 500, retries = 5 }: TFileStab
     lastSize = size
     await new Promise((resolve) => setTimeout(resolve, interval))
   }
+}
+
+const hashedFileName = async (filePath: string) => {
+  return new Promise((resolve, reject) => {
+    const hash = crypto.createHash('md5')
+    const stream = fs.createReadStream(filePath)
+    stream.on('data', (data) => hash.update(data))
+    stream.on('end', () => resolve(hash.digest('hex')))
+    stream.on('error', (err) => reject(err))
+  })
 }
