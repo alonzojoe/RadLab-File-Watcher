@@ -2,8 +2,10 @@ import { app, shell, BrowserWindow, ipcMain, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import type { MappedDrives } from '../types/types'
+import type { MappedDrives, TFileStable } from '../types/types'
+import moment from 'moment'
 import fs from 'fs'
+import fsExtra from 'fs-extra'
 
 let watcher = null
 let mainWindow: BrowserWindow | null = null
@@ -87,5 +89,30 @@ const checkMappedDrives = (drives: MappedDrives) => {
     const drivePlural = missingDrivers.length > 1 ? 's' : ''
     const finalMessage = `Drive${drivePlural} ${rawMessage} do not exist in the Windows devices & drives.`
     console.log(finalMessage)
+  }
+}
+
+const setTerminal = (color: string, results: string) => {
+  const formattedTime = moment().format('YYYY-MM-DD HH:mm:ss.SSS')
+  const messageToSend = {
+    timestamp: formattedTime,
+    text: results,
+    color
+  }
+  console.log('message', messageToSend)
+}
+
+const isFileStable = async ({ filepath, interval = 500, retries = 5 }: TFileStable) => {
+  let lastSize = 0
+
+  for (let i = 0; i < retries; i++) {
+    const { size } = await fsExtra.stat(filepath)
+
+    if (size === lastSize) {
+      return true
+    }
+
+    lastSize = size
+    await new Promise((resolve) => setTimeout(resolve, interval))
   }
 }
