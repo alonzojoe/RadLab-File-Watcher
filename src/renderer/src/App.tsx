@@ -8,12 +8,18 @@ import { BsFillDeviceHddFill } from 'react-icons/bs'
 import Terminal from './components/Terminal'
 import useToggle from './hooks/useToggle'
 
+const { ipcRenderer } = window.electron
+
 function App(): JSX.Element {
-  const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
+  const ipcHandle = (): void => ipcRenderer.send('ping')
   const [count, setCount] = useState(0)
   const [width, setWidth] = useState<number>(window.innerWidth)
   const [height, setHeight] = useState<number>(window.innerHeight)
   const [isOn, toggleIsOn] = useToggle(false)
+
+  ipcRenderer.on('receiveData', (_, data: string) => {
+    console.log(data)
+  })
 
   useEffect(() => {
     let i: NodeJS.Timeout
@@ -56,10 +62,13 @@ function App(): JSX.Element {
     <div className="bg-primaryBg  w-full text-white">
       <div className="container grid gap-5 md:gap-8 grid-cols-1 md:grid-cols-2 pt-5 md:mt-5">
         <div className="space-y-4">
+          {/* <div className="flex justify-center">
+            <img src={WatcherImg} className="h-auto w-[200px] transform -scale-x-100" alt="asd" />
+          </div> */}
           <div className="flex justify-between items-center">
-            <h2 className="text-3xl font-semibold py-3">RadLab File Watcher {width}</h2>
+            <h2 className="text-3xl font-semibold py-3">RadLab File Watcher </h2>
 
-            <label className="inline-flex items-center pointer-events-none ">
+            {/* <label className="inline-flex items-center pointer-events-none ">
               <input
                 className="cursor-pointer sr-only peer"
                 type="checkbox"
@@ -68,7 +77,7 @@ function App(): JSX.Element {
                 checked={isOn}
               />
               <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none ring-0 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary dark:peer-checked:bg-primary"></div>
-            </label>
+            </label> */}
           </div>
           <div className="border border-primary rounded-2xl py-3 text-center">
             <h1 className="font-bold text-5xl">00:21:25</h1>

@@ -1,11 +1,16 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import type { MappedDrives } from '../types/types'
+import fs from 'fs'
+
+let watcher = null
+let mainWindow: BrowserWindow | null = null
 
 function createWindow(): void {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 466,
     height: 712,
     show: false,
@@ -17,8 +22,10 @@ function createWindow(): void {
     }
   })
 
+  if (!mainWindow) return
+
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
+    mainWindow!.show()
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -33,6 +40,11 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  function sendData(data = 'test electron to react component'): void {
+    mainWindow!.webContents.send('receiveData', data)
+  }
+  sendData()
 }
 
 app.whenReady().then(() => {
@@ -56,3 +68,24 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+
+//FileSystemStart
+
+const checkMappedDrives = (drives: MappedDrives) => {
+  const missingDrivers: string[] = []
+
+  if (!fs.existsSync(drives.orders_directory)) {
+    missingDrivers.push(drives.orders_directory)
+  }
+
+  if (!fs.existsSync(drives.target_directory)) {
+    missingDrivers.push(drives.target_directory)
+  }
+
+  if (missingDrivers.length > 0) {
+    const rawMessage = missingDrivers.join(' and ')
+    const drivePlural = missingDrivers.length > 1 ? 's' : ''
+    const finalMessage = `Drive${drivePlural} ${rawMessage} do not exist in the Windows devices & drives.`
+    console.log(finalMessage)
+  }
+}
