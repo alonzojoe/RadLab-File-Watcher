@@ -31,26 +31,12 @@ const Terminal = ({ messages }: TerminalProps): JSX.Element => {
     >
       <>
         {messages.map((content, index) => (
-          <div
-            className={`${content.color} text-sm font-semibold`}
-            key={`${index}-${content.timestamp}`}
-          >
-            🚀 $ {`${content.timestamp}: ${content.text}`}
+          <div className={`text-sm font-semibold`} key={`${index}-${content.timestamp}`}>
+            🚀${' '}
+            <span className={`${content.color}`}>{`${content.timestamp}: ${content.text}`}</span>
           </div>
         ))}
       </>
-      {/* {DIV_COUNT.map((c) => (
-        <Fragment key={c}>
-          <div className="text-green-500 text-sm font-semibold">File Watcher Started...</div>
-          <div className="text-red-500 text-sm font-semibold">File Watcher Started...</div>
-          <div className="text-red-500 text-sm font-semibold">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem incidunt fuga
-            veritatis animi saepe error voluptatibus aspernatur rem aperiam quia pariatur commodi
-            recusandae reprehenderit reiciendis cupiditate, excepturi ea dolorem est.
-          </div>
-          <div className="text-red-500 text-sm font-semibold">File Watcher Started...</div>
-        </Fragment>
-      ))} */}
     </div>
   )
 }

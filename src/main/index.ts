@@ -1,5 +1,5 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
-import { join } from 'path'
+import { basename, join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import type { MappedDrives, TFileStable, TMessage } from '../types/types'
@@ -7,8 +7,10 @@ import moment from 'moment'
 import fs from 'fs'
 import fsExtra from 'fs-extra'
 import crypto from 'crypto'
+import DIRECTORIES from '../constants/constants'
+import chokidar from 'chokidar'
 
-let watcher = null
+let watcher: FSWatcher | null = null
 let mainWindow: BrowserWindow | null = null
 
 function createWindow(): void {
@@ -108,33 +110,41 @@ const hashedFileName = async (filePath: string) => {
 }
 
 const sendDataToComponent = (data: TMessage): void => {
-  mainWindow?.webContents.send('data-to-component', data)
+  if (mainWindow && mainWindow.webContents) {
+    mainWindow?.webContents.send('data-to-component', data)
+  }
 }
 
-// ipcMain.on('startFileWatcher', () => {
-//   console.log('startFileWatcher')
-//   // const data = {
-//   //   timestamp: '2025-01-27 09:57:21 AM',
-//   //   color: 'text-red-500',
-//   //   text: 'Patients Results has been uploaded'
-//   // }
+let watcherRunning = false
+let monitorInterval: NodeJS.Timeout | null = null
 
-//   // // setInterval(() => {
-//   // // sendDataToComponent({
-//   // //   timestamp: '2025-01-27 09:57:21 AM',
-//   // //   color: 'text-red-500',
-//   // //   text: 'Patients Results has been uploaded'
-//   // // })
-//   // if (mainWindow && mainWindow.webContents) {
-//   //   mainWindow.webContents.send('data-to-component', data)
-//   // }
+const startFileWatcher = (): void => {
+  const ordersFolder = DIRECTORIES.orders_directory
+  const targetFolder = DIRECTORIES.target_directory
 
-//   // console.log(data)
+  if (watcherRunning) {
+    return
+  }
 
-//   // }, 500)
-// })
+  watcher = chokidar.watch(ordersFolder, {
+    ignored: /^\./,
+    persistent: true
+  })
 
-//EndfileWatcher
+  watcherRunning = true
+  console.log(`Watching changes in ${ordersFolder}`)
+}
+
+const ensureDirectories = async (dirs: string[]): void => {
+  for (const dir of dirs) {
+    if (!fs.existsSync(dir)) {
+      await fsExtra.ensureDir(dir)
+      setTerminal('fc-green', `Folder created: ${dir}`)
+    } else {
+      setTerminal('fc-yellow', `Folder exists: ${dir}`)
+    }
+  }
+}
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
@@ -151,13 +161,12 @@ app.whenReady().then(() => {
     console.log('startFileWatcherrrrrrrrrs')
     const data = {
       timestamp: '2025-01-27 09:57:21 AM',
-      color: 'text-red-500',
+      color: 'text-green-500',
       text: 'Patients Results has been uploaded'
     }
     console.log('data', data)
-    if (mainWindow && mainWindow.webContents) {
-      mainWindow.webContents.send('data-to-component', data)
-    }
+
+    sendDataToComponent(data)
   })
 
   createWindow()
