@@ -84,7 +84,11 @@ const setTerminal = (color: string, results: string) => {
   console.log('message', messageToSend)
 }
 
-const isFileStable = async ({ filepath, interval = 500, retries = 5 }: TFileStable) => {
+const isFileStable = async ({
+  filepath,
+  interval = 500,
+  retries = 5
+}: TFileStable): Promise<void> => {
   let lastSize = 0
 
   for (let i = 0; i < retries; i++) {
@@ -115,6 +119,26 @@ const sendDataToComponent = (data: TMessage): void => {
   }
 }
 
+const handleFileCopyError = async (
+  err: NodeJS.ErrnoException,
+  retries: number,
+  maxRetries: number,
+  fileName: string,
+  tempDestinationPath: string
+): Promise<void> => {
+  if (err.code === 'EBUSY' && retries < maxRetries - 1) {
+    console.log(`Retrying copy (${retries + 1}/${maxRetries})...`)
+    await new Promise((resolve) => setTimeout(resolve, 10000))
+  } else {
+    console.error(`Error copying ${fileName}: ${err.message}`)
+
+    if (fs.existsSync(tempDestinationPath)) {
+      await fsExtra.remove(tempDestinationPath)
+    }
+  }
+  return
+}
+
 let watcherRunning = false
 let monitorInterval: NodeJS.Timeout | null = null
 
@@ -133,9 +157,71 @@ const startFileWatcher = (): void => {
 
   watcherRunning = true
   console.log(`Watching changes in ${ordersFolder}`)
+
+  let isProcessing = false
+  const watcherQueue: string[] = []
+
+  const tryToMoveFile = async (filePath: string) => {
+    const fileName = basename(filePath)
+    const fileDate = moment()
+
+    const year = fileDate.format('YYYY')
+    const month = fileDate.format('MM')
+    const day = fileDate.format('DD')
+
+    const pathYear = join(targetFolder, year)
+    const pathMonth = join(targetFolder, month)
+    const pathDay = join(targetFolder, day)
+    const tempDestinationPath = join(pathDay, `${fileName}.tmp`)
+    const finalDestinationPath = join(pathDay, fileName)
+    ///api endpoint check
+
+    //
+    ///end api endpoint check
+
+    await ensureDirectories([pathYear, pathMonth, pathDay])
+
+    await isFileStable({
+      filepath: filePath,
+      interval: 500,
+      retries: 5
+    })
+
+    const originalHashFileName = await hashedFileName(filePath)
+
+    const max_retries = 3
+
+    for (let retries = 0; retries < max_retries; retries++) {
+      try {
+        console.log('Copying file to target directory: ')
+        await fsExtra.copy(filePath, tempDestinationPath)
+
+        const copiedHashFileName = await hashedFileName(tempDestinationPath)
+
+        if (originalHashFileName !== copiedHashFileName) {
+          throw new Error(`Hashed File mismatch: ${fileName}`)
+        }
+
+        //file renaming
+        await fsExtra.move(tempDestinationPath, finalDestinationPath, { overwrite: true })
+
+        return
+      } catch (error) {
+        if (error instanceof Error && 'code' in error) {
+          await handleFileCopyError(
+            error as NodeJS.ErrnoException,
+            retries,
+            max_retries,
+            fileName,
+            tempDestinationPath
+          )
+        }
+      }
+    }
+  }
 }
 
-const ensureDirectories = async (dirs: string[]): void => {
+const ensureDirectories = async (dirs: string[]): Promise<void> => {
   for (const dir of dirs) {
     if (!fs.existsSync(dir)) {
       await fsExtra.ensureDir(dir)
