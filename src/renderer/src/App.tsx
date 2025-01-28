@@ -16,7 +16,7 @@ function App(): JSX.Element {
   const [width, setWidth] = useState<number>(window.innerWidth)
   const [height, setHeight] = useState<number>(window.innerHeight)
   const [isOn, toggleIsOn] = useToggle(false)
-  const [message, setMessage] = useState<
+  const [messages, setMessages] = useState<
     {
       timestamp: string
       color: string
@@ -73,7 +73,7 @@ function App(): JSX.Element {
   useEffect(() => {
     ipcRenderer.on('data-to-component', (_, data) => {
       console.log('data received in react component', data)
-      setMessage((message) => [...message, data])
+      setMessages((message) => [...message, data])
     })
   }, [])
 
@@ -84,7 +84,7 @@ function App(): JSX.Element {
           {/* <div className="flex justify-center">
             <img src={WatcherImg} className="h-auto w-[200px] transform -scale-x-100" alt="asd" />
           </div> */}
-          {JSON.stringify(message)}
+
           <div className="flex justify-between items-center">
             <button onClick={ipcHandle}>Start</button>
             <h2 className="text-3xl font-semibold py-3">RadLab File Watcher </h2>
@@ -133,12 +133,12 @@ function App(): JSX.Element {
           </div>
         </div>
         <div className="flex flex-col items-center justify-start">
-          <div className="hidden md:block">
+          <div className="hidden md:block w-full">
             {/* <img src={WatcherImg} className="h-auto w-[630px]" alt="asd" /> */}
-            <Terminal />
+            <Terminal messages={messages} />
           </div>
-          <div className="flex justify-center items-center md:hidden mt-5">
-            <Terminal />
+          <div className="flex justify-center items-center md:hidden mt-5 w-full">
+            <Terminal messages={messages} />
           </div>
         </div>
       </div>
