@@ -1,5 +1,6 @@
-import { Fragment } from 'react/jsx-runtime'
+import { Fragment, useRef } from 'react'
 import type { TMessage } from '../../../types/types'
+import { useEffect } from 'react'
 
 const DIV_COUNT = Array.from({ length: 10 }, (_, index) => index + 1)
 
@@ -8,15 +9,33 @@ type TerminalProps = {
 }
 
 const Terminal = ({ messages }: TerminalProps): JSX.Element => {
+  const terminalEl = useRef<HTMLDivElement | null>(null)
+
+  const scrollToBottom = (): void => {
+    if (terminalEl.current) {
+      terminalEl.current.scrollTo({
+        top: terminalEl.current.scrollHeight,
+        behavior: 'smooth'
+      })
+    }
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
   return (
-    <div className="bg-separator w-full overflow-y-auto rounded-lg h-40 md:h-[80vh] p-2 mx-2">
+    <div
+      ref={terminalEl}
+      className="bg-separator w-full overflow-y-auto rounded-lg h-40 md:h-[80vh] p-2 mx-2"
+    >
       <>
         {messages.map((content, index) => (
           <div
             className={`${content.color} text-sm font-semibold`}
             key={`${index}-${content.timestamp}`}
           >
-            {`${content.timestamp}: ${content.text}`}
+            🚀 $ {`${content.timestamp}: ${content.text}`}
           </div>
         ))}
       </>
