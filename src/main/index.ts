@@ -1,8 +1,8 @@
-import { app, shell, BrowserWindow, ipcMain, BrowserWindow } from 'electron'
+import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import type { MappedDrives, TFileStable } from '../types/types'
+import type { MappedDrives, TFileStable, TMessage } from '../types/types'
 import moment from 'moment'
 import fs from 'fs'
 import fsExtra from 'fs-extra'
@@ -50,28 +50,7 @@ function createWindow(): void {
   sendData()
 }
 
-app.whenReady().then(() => {
-  electronApp.setAppUserModelId('com.electron')
-
-  app.on('browser-window-created', (_, window) => {
-    optimizer.watchWindowShortcuts(window)
-  })
-
-  ipcMain.on('ping', () => console.log('pong'))
-
-  createWindow()
-
-  app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
-  })
-})
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
-
+//startFileWatcher
 //FileSystemStart
 
 const checkMappedDrives = (drives: MappedDrives) => {
@@ -127,3 +106,69 @@ const hashedFileName = async (filePath: string) => {
     stream.on('error', (err) => reject(err))
   })
 }
+
+const sendDataToComponent = (data: TMessage): void => {
+  mainWindow?.webContents.send('data-to-component', data)
+}
+
+// ipcMain.on('startFileWatcher', () => {
+//   console.log('startFileWatcher')
+//   // const data = {
+//   //   timestamp: '2025-01-27 09:57:21 AM',
+//   //   color: 'text-red-500',
+//   //   text: 'Patients Results has been uploaded'
+//   // }
+
+//   // // setInterval(() => {
+//   // // sendDataToComponent({
+//   // //   timestamp: '2025-01-27 09:57:21 AM',
+//   // //   color: 'text-red-500',
+//   // //   text: 'Patients Results has been uploaded'
+//   // // })
+//   // if (mainWindow && mainWindow.webContents) {
+//   //   mainWindow.webContents.send('data-to-component', data)
+//   // }
+
+//   // console.log(data)
+
+//   // }, 500)
+// })
+
+//EndfileWatcher
+
+app.whenReady().then(() => {
+  electronApp.setAppUserModelId('com.electron')
+
+  app.on('browser-window-created', (_, window) => {
+    optimizer.watchWindowShortcuts(window)
+  })
+
+  ipcMain.on('pingx', () => {
+    console.log('startFileWatcherrrrrrrrr')
+  })
+
+  ipcMain.on('ping', () => {
+    console.log('startFileWatcherrrrrrrrrs')
+    const data = {
+      timestamp: '2025-01-27 09:57:21 AM',
+      color: 'text-red-500',
+      text: 'Patients Results has been uploaded'
+    }
+    console.log('data', data)
+    if (mainWindow && mainWindow.webContents) {
+      mainWindow.webContents.send('data-to-component', data)
+    }
+  })
+
+  createWindow()
+
+  app.on('activate', function () {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  })
+})
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})

@@ -16,6 +16,13 @@ function App(): JSX.Element {
   const [width, setWidth] = useState<number>(window.innerWidth)
   const [height, setHeight] = useState<number>(window.innerHeight)
   const [isOn, toggleIsOn] = useToggle(false)
+  const [message, setMessage] = useState<
+    {
+      timestamp: string
+      color: string
+      text: string
+    }[]
+  >([])
 
   ipcRenderer.on('receiveData', (_, data: string) => {
     console.log(data)
@@ -58,6 +65,18 @@ function App(): JSX.Element {
     }
   }, [])
 
+  // ipcRenderer.on('data-to-component', (_, data) => {
+  //   console.log('data received in vue component', data)
+  //   setMessage((message) => [...message, data])
+  // })
+
+  useEffect(() => {
+    ipcRenderer.on('data-to-component', (_, data) => {
+      console.log('data received in react component', data)
+      setMessage((message) => [...message, data])
+    })
+  }, [])
+
   return (
     <div className="bg-primaryBg  w-full text-white">
       <div className="container grid gap-5 md:gap-8 grid-cols-1 md:grid-cols-2 pt-5 md:mt-5">
@@ -65,7 +84,9 @@ function App(): JSX.Element {
           {/* <div className="flex justify-center">
             <img src={WatcherImg} className="h-auto w-[200px] transform -scale-x-100" alt="asd" />
           </div> */}
+          {JSON.stringify(message)}
           <div className="flex justify-between items-center">
+            <button onClick={ipcHandle}>Start</button>
             <h2 className="text-3xl font-semibold py-3">RadLab File Watcher </h2>
 
             {/* <label className="inline-flex items-center pointer-events-none ">

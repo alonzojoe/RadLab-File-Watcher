@@ -8,3 +8,9 @@ export type TFileStable = {
   interval: number
   retries: number
 }
+
+export type TMessage = {
+  timestamp: string
+  color: string
+  text: string
+}
