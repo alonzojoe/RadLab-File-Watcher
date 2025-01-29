@@ -89,7 +89,7 @@ const isFileStable = async ({
   filepath,
   interval = 500,
   retries = 5
-}: TFileStable): Promise<void> => {
+}: TFileStable): Promise<boolean | void> => {
   let lastSize = 0
 
   for (let i = 0; i < retries; i++) {
@@ -104,7 +104,7 @@ const isFileStable = async ({
   }
 }
 
-const hashedFileName = async (filePath: string) => {
+const hashedFileName = async (filePath: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const hash = crypto.createHash('md5')
     const stream = fs.createReadStream(filePath)
