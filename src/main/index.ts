@@ -238,10 +238,27 @@ const startFileWatcher = (): void => {
       console.log('Render Number', patientDetails[1])
       console.log('Document Path', destinationPath)
       //end api call here
+
+      //send message to component
     } catch (error) {
       if (error instanceof Error) {
         console.log(`an error occured ${error?.message}`)
       }
+    }
+
+    if (processNextFileTimeout) {
+      clearTimeout(processNextFileTimeout)
+    }
+
+    processNextFileTimeout = setTimeout(processNextFile, 30000)
+  }
+
+  const processNextFile = (): void => {
+    const nextFile = watcherQueue.shift()
+    if (nextFile) {
+      tryToMoveFile(nextFile)
+    } else {
+      isProcessing = false
     }
   }
 }
