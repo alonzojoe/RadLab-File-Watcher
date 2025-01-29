@@ -9,6 +9,7 @@ import fsExtra from 'fs-extra'
 import crypto from 'crypto'
 import DIRECTORIES from '../constants/constants'
 import chokidar from 'chokidar'
+import { extractFileName } from '../renderer/src/libs/utils'
 
 let watcher: FSWatcher | null = null
 let mainWindow: BrowserWindow | null = null
@@ -216,6 +217,30 @@ const startFileWatcher = (): void => {
             tempDestinationPath
           )
         }
+      }
+    }
+  }
+
+  let processNextFileTimeout: NodeJS.Timeout | null = null
+  const finalizedFileProcess = async (
+    filePath: string,
+    fileName: string,
+    destinationPath: string
+  ): Promise<void> => {
+    try {
+      console.log(`Removing source file: ${filePath}`)
+      await fsExtra.remove(filePath)
+
+      const patientDetails = extractFileName(fileName) // to be used in api call
+
+      //api call here
+      console.log('LIS TemplateCode', patientDetails[0])
+      console.log('Render Number', patientDetails[1])
+      console.log('Document Path', destinationPath)
+      //end api call here
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log(`an error occured ${error?.message}`)
       }
     }
   }
