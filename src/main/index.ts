@@ -300,23 +300,38 @@ const startFileWatcher = (): void => {
   watcher.on(`error`, (error: unknown) => {
     if (error instanceof Error) {
       console.log('File Watcher caught and Error', error?.message)
-    }else {
+    } else {
       console.log(`Unexpected Error type: ${error}`)
     }
   })
-
 
   watcher.on('close', () => {
     console.log('File Watcher stopped')
     watcherRunning = false
   })
 
+  // startMonitor()
 }
 
-
-function startMonitor = () => {
-
+const stopFileWatcher = (): void => {
+  const currentDateTime = moment().format('YYYY-MM-DD HH:mm:ss.SSS')
+  if (watcher) {
+    watcher.close()
+    watcher = null
+    sendDataToComponent({
+      timestamp: currentDateTime,
+      color: `text-red-500`,
+      text: `File Watcher stopped.`
+    })
+    watcherRunning = false
+  } else {
+    console.log('File Watcher is not running')
+  }
 }
+
+// function startMonitor = () => {
+
+// }
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
