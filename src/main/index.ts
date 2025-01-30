@@ -327,11 +327,25 @@ const stopFileWatcher = (): void => {
   } else {
     console.log('File Watcher is not running')
   }
+
+  if (monitorInterval) {
+    clearInterval(monitorInterval)
+    monitorInterval = null
+  }
 }
 
-// function startMonitor = () => {
+const restartFileWatcher = (): void => {
+  console.log(`Restarting File Watcher...`)
+  stopFileWatcher()
 
-// }
+  if (!watcherRunning) {
+    setTimeout(() => {
+      startFileWatcher()
+    }, 5000)
+  } else {
+    console.log('File Watcher is already running')
+  }
+}
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
