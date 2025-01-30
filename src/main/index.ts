@@ -10,6 +10,7 @@ import crypto from 'crypto'
 import DIRECTORIES from '../constants/constants'
 import chokidar from 'chokidar'
 import { extractFileName } from '../renderer/src/libs/utils'
+import path from 'path'
 
 let watcher: FSWatcher | null = null
 let mainWindow: BrowserWindow | null = null
@@ -206,6 +207,9 @@ const startFileWatcher = (): void => {
         //file renaming
         await fsExtra.move(tempDestinationPath, finalDestinationPath, { overwrite: true })
 
+        console.log(`Copied ${fileName} successully`)
+
+        await finalizedFileProcess(filePath, fileName, finalDestinationPath)
         return
       } catch (error) {
         if (error instanceof Error && 'code' in error) {
@@ -261,17 +265,37 @@ const startFileWatcher = (): void => {
       isProcessing = false
     }
   }
-}
 
-const ensureDirectories = async (dirs: string[]): Promise<void> => {
-  for (const dir of dirs) {
-    if (!fs.existsSync(dir)) {
-      await fsExtra.ensureDir(dir)
-      setTerminal('fc-green', `Folder created: ${dir}`)
-    } else {
-      setTerminal('fc-yellow', `Folder exists: ${dir}`)
+  const ensureDirectories = async (dirs: string[]): Promise<void> => {
+    for (const dir of dirs) {
+      if (!fs.existsSync(dir)) {
+        await fsExtra.ensureDir(dir)
+        setTerminal('fc-green', `Folder created: ${dir}`)
+      } else {
+        setTerminal('fc-yellow', `Folder exists: ${dir}`)
+      }
     }
   }
+
+  watcher.on('add', (filePath: string) => {
+    const fileExtension = path.extname(filePath).toLowerCase()
+    if (fileExtension === '.pdf') {
+      if (!isProcessing && fs.existsSync(filePath)) {
+        isProcessing = true
+        watcherQueue.push(filePath)
+
+        const fileToProcess = watcherQueue.shift()
+
+        if (fileToProcess) {
+          tryToMoveFile(fileToProcess)
+        }
+      } else if (fs.existsSync(filePath)) {
+        watcherQueue.push(filePath)
+      } else {
+        console.error(`File does not exist: ${filePath}`)
+      }
+    }
+  })
 }
 
 app.whenReady().then(() => {
