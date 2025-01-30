@@ -347,6 +347,17 @@ const restartFileWatcher = (): void => {
   }
 }
 
+const startMonitor = (): void => {
+  if (monitorInterval) return
+
+  monitorInterval = setInterval(() => {
+    if (!watcherRunning) {
+      console.log(`Watcher is not running. Restarting...`)
+      restartFileWatcher()
+    }
+  }, 10000)
+}
+
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
 
