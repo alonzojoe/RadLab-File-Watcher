@@ -296,6 +296,26 @@ const startFileWatcher = (): void => {
       }
     }
   })
+
+  watcher.on(`error`, (error: unknown) => {
+    if (error instanceof Error) {
+      console.log('File Watcher caught and Error', error?.message)
+    }else {
+      console.log(`Unexpected Error type: ${error}`)
+    }
+  })
+
+
+  watcher.on('close', () => {
+    console.log('File Watcher stopped')
+    watcherRunning = false
+  })
+
+}
+
+
+function startMonitor = () => {
+
 }
 
 app.whenReady().then(() => {
