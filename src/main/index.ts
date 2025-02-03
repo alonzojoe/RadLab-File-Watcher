@@ -310,7 +310,7 @@ const startFileWatcher = (): void => {
     watcherRunning = false
   })
 
-  // startMonitor()
+  startMonitor()
 }
 
 const stopFileWatcher = (): void => {
@@ -365,6 +365,16 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
+  //ipcMain to component start
+
+  ipcMain.on('startFileWatcher', () => {
+    startFileWatcher()
+  })
+
+  ipcMain.on('stopFileWatcher', () => {
+    stopFileWatcher()
+  })
+
   ipcMain.on('pingx', () => {
     console.log('startFileWatcherrrrrrrrr')
   })
@@ -381,6 +391,7 @@ app.whenReady().then(() => {
     sendDataToComponent(data)
   })
 
+  //ipcMain to component end
   createWindow()
 
   app.on('activate', function () {
