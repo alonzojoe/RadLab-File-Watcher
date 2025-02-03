@@ -11,7 +11,7 @@ import useToggle from './hooks/useToggle'
 const { ipcRenderer } = window.electron
 
 function App(): JSX.Element {
-  const ipcHandle = (): void => ipcRenderer.send('ping')
+  const ipcHandle = (): void => ipcRenderer.send('startFileWatcher')
   const [count, setCount] = useState(0)
   const [width, setWidth] = useState<number>(window.innerWidth)
   const [height, setHeight] = useState<number>(window.innerHeight)

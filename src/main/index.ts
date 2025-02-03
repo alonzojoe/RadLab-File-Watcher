@@ -236,7 +236,7 @@ const startFileWatcher = (): void => {
       await fsExtra.remove(filePath)
 
       const patientDetails = extractFileName(fileName) // to be used in api call
-
+      console.log('Extracted File Name', patientDetails)
       //api call here
       console.log('LIS TemplateCode', patientDetails[0])
       console.log('Render Number', patientDetails[1])
@@ -368,6 +368,7 @@ app.whenReady().then(() => {
   //ipcMain to component start
 
   ipcMain.on('startFileWatcher', () => {
+    console.log('File Watcher started')
     startFileWatcher()
   })
 
@@ -393,6 +394,10 @@ app.whenReady().then(() => {
 
   //ipcMain to component end
   createWindow()
+
+  setTimeout(() => {
+    checkMappedDrives(DIRECTORIES)
+  }, 3000)
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
