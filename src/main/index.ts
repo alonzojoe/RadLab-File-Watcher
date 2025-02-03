@@ -172,8 +172,8 @@ const startFileWatcher = (): void => {
     const day = fileDate.format('DD')
 
     const pathYear = join(targetFolder, year)
-    const pathMonth = join(targetFolder, month)
-    const pathDay = join(targetFolder, day)
+    const pathMonth = join(pathYear, month)
+    const pathDay = join(pathMonth, day)
     const tempDestinationPath = join(pathDay, `${fileName}.tmp`)
     const finalDestinationPath = join(pathDay, fileName)
     ///api endpoint check
