@@ -57,7 +57,7 @@ function createWindow(): void {
 //startFileWatcher
 //FileSystemStart
 
-const checkMappedDrives = (drives: MappedDrives) => {
+const checkMappedDrives = (drives: MappedDrives): void => {
   const missingDrivers: string[] = []
 
   if (!fs.existsSync(drives.orders_directory)) {
@@ -76,7 +76,7 @@ const checkMappedDrives = (drives: MappedDrives) => {
   }
 }
 
-const setTerminal = (color: string, results: string) => {
+const setTerminal = (color: string, results: string): void => {
   const formattedTime = moment().format('YYYY-MM-DD HH:mm:ss.SSS')
   const messageToSend = {
     timestamp: formattedTime,
@@ -163,7 +163,7 @@ const startFileWatcher = (): void => {
   let isProcessing = false
   const watcherQueue: string[] = []
 
-  const tryToMoveFile = async (filePath: string) => {
+  const tryToMoveFile = async (filePath: string): Promise<void> => {
     const fileName = basename(filePath)
     const fileDate = moment()
 
