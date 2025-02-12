@@ -8,7 +8,7 @@ import fs from 'fs'
 import fsExtra from 'fs-extra'
 import crypto from 'crypto'
 import { DIRECTORIES } from '../constants/constants'
-import chokidar from 'chokidar'
+import chokidar, { type FSWatcher } from 'chokidar'
 import { extractFileName } from '../renderer/src/libs/utils'
 import path from 'path'
 
