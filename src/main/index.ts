@@ -305,10 +305,10 @@ const startFileWatcher = (): void => {
     }
   })
 
-  watcher.on('close', () => {
-    console.log('File Watcher stopped')
-    watcherRunning = false
-  })
+  // watcher!.on('close', () => {
+  //   console.log('File Watcher stopped')
+  //   watcherRunning = false
+  // })
 
   startMonitor()
 }
