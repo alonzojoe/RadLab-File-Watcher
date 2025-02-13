@@ -11,6 +11,7 @@ import { DIRECTORIES } from '../constants/constants'
 import chokidar, { type FSWatcher } from 'chokidar'
 import { extractFileName } from '../renderer/src/libs/utils'
 import path from 'path'
+import { connectDB, updateDocumentPath } from '../config/database'
 
 let watcher: FSWatcher | null = null
 let mainWindow: BrowserWindow | null = null
@@ -358,7 +359,8 @@ const startMonitor = (): void => {
   }, 10000)
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  await connectDB()
   electronApp.setAppUserModelId('com.electron')
 
   app.on('browser-window-created', (_, window) => {
