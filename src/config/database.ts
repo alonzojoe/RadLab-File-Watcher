@@ -34,7 +34,7 @@ export const updateDocumentPath = async (
   SET rd.DocumentPath = '${documentPath}'
   FROM RenderDetails rd
   JOIN RenderHeader rh
-      ON rd.RenderID = rh.RenderID
+      ON rd.RenderID = rh.ID
   JOIN LISItemInterface li
       ON rd.ItemCode = li.MedixItemCode
   WHERE rh.RenderNumber = '${renderNumber}'
