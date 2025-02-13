@@ -86,10 +86,9 @@ function App(): JSX.Element {
           </div> */}
 
           <div className="flex justify-between items-center">
-            <button onClick={ipcHandle}>Start</button>
             <h2 className="text-3xl font-semibold py-3">RadLab File Watcher </h2>
 
-            {/* <label className="inline-flex items-center pointer-events-none ">
+            <label className="inline-flex items-center pointer-events-none ">
               <input
                 className="cursor-pointer sr-only peer"
                 type="checkbox"
@@ -98,7 +97,7 @@ function App(): JSX.Element {
                 checked={isOn}
               />
               <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none ring-0 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary dark:peer-checked:bg-primary"></div>
-            </label> */}
+            </label>
           </div>
           <div className="border border-primary rounded-2xl py-3 text-center">
             <h1 className="font-bold text-5xl">00:21:25</h1>
@@ -127,7 +126,7 @@ function App(): JSX.Element {
               src={isOn ? ConnectedBtn : DisconnectedBtn}
               className="bg-primary rounded-full cursor-pointer btn-pulse h-auto w-[150px] z-10"
               alt="btn"
-              onClick={() => toggleIsOn()}
+              onClick={() => ipcHandle()}
             />
             {isOn && <div className="btn-shadow"></div>}
           </div>
