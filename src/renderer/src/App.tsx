@@ -77,6 +77,11 @@ function App(): JSX.Element {
     })
   }, [])
 
+  const startFileWatcher = () => {
+    toggleIsOn()
+    ipcHandle()
+  }
+
   return (
     <div className="bg-primaryBg  w-full text-white">
       <div className="container grid gap-5 md:gap-8 grid-cols-1 md:grid-cols-2 pt-5 md:mt-5">
@@ -126,7 +131,7 @@ function App(): JSX.Element {
               src={isOn ? ConnectedBtn : DisconnectedBtn}
               className="bg-primary rounded-full cursor-pointer btn-pulse h-auto w-[150px] z-10"
               alt="btn"
-              onClick={() => ipcHandle()}
+              onClick={startFileWatcher}
             />
             {isOn && <div className="btn-shadow"></div>}
           </div>

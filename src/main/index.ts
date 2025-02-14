@@ -241,6 +241,7 @@ const startFileWatcher = (): void => {
       //api call here
       console.log('LIS TemplateCode', patientDetails[0])
       console.log('Render Number', patientDetails[1])
+      console.log('PatientName', patientDetails[2])
       console.log('Document Path', destinationPath)
       //end api call here
 
