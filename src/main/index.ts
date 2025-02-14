@@ -239,10 +239,17 @@ const startFileWatcher = (): void => {
       const patientDetails = extractFileName(fileName) // to be used in api call
       console.log('Extracted File Name', patientDetails)
       //api call here
-      console.log('LIS TemplateCode', patientDetails[0])
-      console.log('Render Number', patientDetails[1])
-      console.log('PatientName', patientDetails[2])
+      const templateCode = patientDetails[0]
+      const renderNumber = patientDetails[1]
+      const patientName = patientDetails[2]
+
+      await updateDocumentPath(templateCode, renderNumber, destinationPath)
+
+      console.log('LIS TemplateCode', templateCode)
+      console.log('Render Number', renderNumber)
+      console.log('PatientName', patientName)
       console.log('Document Path', destinationPath)
+
       //end api call here
 
       //send message to component
