@@ -7,8 +7,17 @@ import { FaNetworkWired } from 'react-icons/fa6'
 import { BsFillDeviceHddFill } from 'react-icons/bs'
 import Terminal from './components/Terminal'
 import useToggle from './hooks/useToggle'
+import moment from 'moment'
 
 const { ipcRenderer } = window.electron
+const dateNow = moment().format('YYYY-MM-DD HH:mm:ss.SSS')
+const initialState = [
+  {
+    timestamp: dateNow,
+    color: `text-green-500`,
+    text: `Welcome to LIS File Watcher`
+  }
+]
 
 function App(): JSX.Element {
   const ipcHandle = (): void => ipcRenderer.send('startFileWatcher')
@@ -22,7 +31,7 @@ function App(): JSX.Element {
       color: string
       text: string
     }[]
-  >([])
+  >(initialState)
 
   ipcRenderer.on('receiveData', (_, data: string) => {
     console.log(data)
@@ -77,7 +86,7 @@ function App(): JSX.Element {
     })
   }, [])
 
-  const startFileWatcher = () => {
+  const startFileWatcher = (): void => {
     toggleIsOn()
     ipcHandle()
   }

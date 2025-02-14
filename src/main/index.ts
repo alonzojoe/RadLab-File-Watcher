@@ -15,6 +15,7 @@ import { connectDB, updateDocumentPath } from '../config/database'
 
 let watcher: FSWatcher | null = null
 let mainWindow: BrowserWindow | null = null
+const dateNow = moment().format('YYYY-MM-DD HH:mm:ss.SSS')
 
 function createWindow(): void {
   // Create the browser window.
@@ -250,6 +251,13 @@ const startFileWatcher = (): void => {
       console.log('PatientName', patientName)
       console.log('Document Path', destinationPath)
 
+      const data = {
+        timestamp: dateNow,
+        color: `text-green-500`,
+        text: `${patientName} results have been uploaded`
+      }
+
+      sendDataToComponent(data)
       //end api call here
 
       //send message to component
