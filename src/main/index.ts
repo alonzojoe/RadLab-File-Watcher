@@ -287,9 +287,9 @@ const startFileWatcher = (): void => {
     for (const dir of dirs) {
       if (!fs.existsSync(dir)) {
         await fsExtra.ensureDir(dir)
-        setTerminal('fc-green', `Folder created: ${dir}`)
+        setTerminal('text-green-500', `Folder created: ${dir}`)
       } else {
-        setTerminal('fc-yellow', `Folder exists: ${dir}`)
+        setTerminal('text-yellow-500', `Folder exists: ${dir}`)
       }
     }
   }
