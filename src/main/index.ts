@@ -15,6 +15,7 @@ import { connectDB, updateDocumentPath } from '../config/database'
 
 let watcher: FSWatcher | null = null
 let mainWindow: BrowserWindow | null = null
+const dateNow = moment().format('YYYY-MM-DD HH:mm:ss.SSS')
 
 function createWindow(): void {
   // Create the browser window.
@@ -239,9 +240,24 @@ const startFileWatcher = (): void => {
       const patientDetails = extractFileName(fileName) // to be used in api call
       console.log('Extracted File Name', patientDetails)
       //api call here
-      console.log('LIS TemplateCode', patientDetails[0])
-      console.log('Render Number', patientDetails[1])
+      const templateCode = patientDetails[0]
+      const renderNumber = patientDetails[1]
+      const patientName = patientDetails[2]
+
+      await updateDocumentPath(templateCode, renderNumber, destinationPath)
+
+      console.log('LIS TemplateCode', templateCode)
+      console.log('Render Number', renderNumber)
+      console.log('PatientName', patientName)
       console.log('Document Path', destinationPath)
+
+      const data = {
+        timestamp: dateNow,
+        color: `text-green-500`,
+        text: `${patientName} results have been uploaded`
+      }
+
+      sendDataToComponent(data)
       //end api call here
 
       //send message to component
@@ -271,9 +287,9 @@ const startFileWatcher = (): void => {
     for (const dir of dirs) {
       if (!fs.existsSync(dir)) {
         await fsExtra.ensureDir(dir)
-        setTerminal('fc-green', `Folder created: ${dir}`)
+        setTerminal('text-green-500', `Folder created: ${dir}`)
       } else {
-        setTerminal('fc-yellow', `Folder exists: ${dir}`)
+        setTerminal('text-yellow-500', `Folder exists: ${dir}`)
       }
     }
   }

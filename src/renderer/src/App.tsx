@@ -7,8 +7,17 @@ import { FaNetworkWired } from 'react-icons/fa6'
 import { BsFillDeviceHddFill } from 'react-icons/bs'
 import Terminal from './components/Terminal'
 import useToggle from './hooks/useToggle'
+import moment from 'moment'
 
 const { ipcRenderer } = window.electron
+const dateNow = moment().format('YYYY-MM-DD HH:mm:ss.SSS')
+const initialState = [
+  {
+    timestamp: dateNow,
+    color: `text-green-500`,
+    text: `Welcome to LIS File Watcher`
+  }
+]
 
 function App(): JSX.Element {
   const ipcHandle = (): void => ipcRenderer.send('startFileWatcher')
@@ -22,7 +31,7 @@ function App(): JSX.Element {
       color: string
       text: string
     }[]
-  >([])
+  >(initialState)
 
   ipcRenderer.on('receiveData', (_, data: string) => {
     console.log(data)
@@ -77,6 +86,11 @@ function App(): JSX.Element {
     })
   }, [])
 
+  const startFileWatcher = (): void => {
+    toggleIsOn()
+    ipcHandle()
+  }
+
   return (
     <div className="bg-primaryBg  w-full text-white">
       <div className="container grid gap-5 md:gap-8 grid-cols-1 md:grid-cols-2 pt-5 md:mt-5">
@@ -126,7 +140,7 @@ function App(): JSX.Element {
               src={isOn ? ConnectedBtn : DisconnectedBtn}
               className="bg-primary rounded-full cursor-pointer btn-pulse h-auto w-[150px] z-10"
               alt="btn"
-              onClick={() => ipcHandle()}
+              onClick={startFileWatcher}
             />
             {isOn && <div className="btn-shadow"></div>}
           </div>
