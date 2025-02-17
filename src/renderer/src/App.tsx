@@ -84,11 +84,44 @@ function App(): JSX.Element {
       console.log('data received in react component', data)
       setMessages((message) => [...message, data])
     })
+
+    let intervalId: NodeJS.Timeout | null = null
+
+    const startInterval = (): void => {
+      if (intervalId) {
+        clearInterval(intervalId)
+      }
+
+      intervalId = setInterval(() => {
+        clearTerminal()
+      }, moment.duration(2, 'hours').asMilliseconds())
+    }
+
+    const stopInterval = (): void => {
+      if (intervalId) {
+        clearInterval(intervalId)
+      }
+    }
+
+    startInterval()
+    return (): void => {
+      stopInterval()
+    }
   }, [])
 
   const startFileWatcher = (): void => {
     toggleIsOn()
     ipcHandle()
+  }
+
+  const clearTerminal = (): void => {
+    const resetMessage = {
+      timestamp: dateNow,
+      color: `text-white`,
+      text: `The terminal was automatically cleared.`
+    }
+
+    setMessages([resetMessage])
   }
 
   return (
