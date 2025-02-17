@@ -8,6 +8,7 @@ import { BsFillDeviceHddFill } from 'react-icons/bs'
 import Terminal from './components/Terminal'
 import useToggle from './hooks/useToggle'
 import moment from 'moment'
+import { TerminalMessage } from './types'
 
 const { ipcRenderer } = window.electron
 const dateNow = moment().format('YYYY-MM-DD HH:mm:ss.SSS')
@@ -25,13 +26,7 @@ function App(): JSX.Element {
   const [width, setWidth] = useState<number>(window.innerWidth)
   const [height, setHeight] = useState<number>(window.innerHeight)
   const [isOn, toggleIsOn] = useToggle(false)
-  const [messages, setMessages] = useState<
-    {
-      timestamp: string
-      color: string
-      text: string
-    }[]
-  >(initialState)
+  const [messages, setMessages] = useState<TerminalMessage[]>(initialState)
 
   ipcRenderer.on('receiveData', (_, data: string) => {
     console.log(data)
@@ -119,7 +114,7 @@ function App(): JSX.Element {
       timestamp: dateNow,
       color: `text-white`,
       text: `The terminal was automatically cleared.`
-    }
+    } satisfies TerminalMessage
 
     setMessages([resetMessage])
   }
