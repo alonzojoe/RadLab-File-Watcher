@@ -84,8 +84,9 @@ const setTerminal = (color: string, results: string): void => {
     timestamp: formattedTime,
     text: results,
     color
-  }
+  } satisfies TMessage
   console.log('message', messageToSend)
+  sendDataToComponent(messageToSend)
 }
 
 const isFileStable = async ({
