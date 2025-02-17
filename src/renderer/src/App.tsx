@@ -8,6 +8,7 @@ import { BsFillDeviceHddFill } from 'react-icons/bs'
 import Terminal from './components/Terminal'
 import useToggle from './hooks/useToggle'
 import moment from 'moment'
+import { TerminalMessage } from './types'
 
 const { ipcRenderer } = window.electron
 const dateNow = moment().format('YYYY-MM-DD HH:mm:ss.SSS')
@@ -25,13 +26,7 @@ function App(): JSX.Element {
   const [width, setWidth] = useState<number>(window.innerWidth)
   const [height, setHeight] = useState<number>(window.innerHeight)
   const [isOn, toggleIsOn] = useToggle(false)
-  const [messages, setMessages] = useState<
-    {
-      timestamp: string
-      color: string
-      text: string
-    }[]
-  >(initialState)
+  const [messages, setMessages] = useState<TerminalMessage[]>(initialState)
 
   ipcRenderer.on('receiveData', (_, data: string) => {
     console.log(data)
@@ -84,11 +79,44 @@ function App(): JSX.Element {
       console.log('data received in react component', data)
       setMessages((message) => [...message, data])
     })
+
+    let intervalId: NodeJS.Timeout | null = null
+
+    const startInterval = (): void => {
+      if (intervalId) {
+        clearInterval(intervalId)
+      }
+
+      intervalId = setInterval(() => {
+        clearTerminal()
+      }, moment.duration(2, 'hours').asMilliseconds())
+    }
+
+    const stopInterval = (): void => {
+      if (intervalId) {
+        clearInterval(intervalId)
+      }
+    }
+
+    startInterval()
+    return (): void => {
+      stopInterval()
+    }
   }, [])
 
   const startFileWatcher = (): void => {
     toggleIsOn()
     ipcHandle()
+  }
+
+  const clearTerminal = (): void => {
+    const resetMessage = {
+      timestamp: dateNow,
+      color: `text-white`,
+      text: `The terminal was automatically cleared.`
+    } satisfies TerminalMessage
+
+    setMessages([resetMessage])
   }
 
   return (

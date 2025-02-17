@@ -84,8 +84,9 @@ const setTerminal = (color: string, results: string): void => {
     timestamp: formattedTime,
     text: results,
     color
-  }
+  } satisfies TMessage
   console.log('message', messageToSend)
+  sendDataToComponent(messageToSend)
 }
 
 const isFileStable = async ({
@@ -109,7 +110,7 @@ const isFileStable = async ({
 
 const hashedFileName = async (filePath: string): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const hash = crypto.createHash('md5')
+    const hash = crypto.createHash('bcrypt')
     const stream = fs.createReadStream(filePath)
     stream.on('data', (data) => hash.update(data))
     stream.on('end', () => resolve(hash.digest('hex')))
