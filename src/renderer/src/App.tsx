@@ -1,19 +1,19 @@
 import ConnectedBtn from './assets/thunder.png'
 import DisconnectedBtn from './assets/off.png'
 import WatcherImg from './assets/Watcher.png'
-import { useState, useEffect } from 'react'
+import { useState, useReducer, useEffect } from 'react'
 import { FaCog } from 'react-icons/fa'
 import { FaNetworkWired } from 'react-icons/fa6'
 import { BsFillDeviceHddFill } from 'react-icons/bs'
 import Terminal from './components/Terminal'
 import useToggle from './hooks/useToggle'
 import moment from 'moment'
-import { TerminalMessage } from './types'
+import { TerminalMessage, DriveErrorMessage, Drive } from './types'
 import Header from './components/Header'
 
 const { ipcRenderer } = window.electron
 const dateNow = moment().format('YYYY-MM-DD HH:mm:ss.SSS')
-const initialState = [
+const initialMessageState = [
   {
     timestamp: dateNow,
     color: `text-green-500`,
@@ -21,64 +21,69 @@ const initialState = [
   }
 ]
 
+const initialDriveState: Drive = {
+  isDisabled: false,
+  title: '',
+  message: ''
+}
+
+const ACTIONS = {
+  DISABLE_DRIVE: 'disable-drive',
+  ENABLE_DRIVE: 'enable-drive'
+}
+
+type Action =
+  | { type: typeof ACTIONS.DISABLE_DRIVE; payload: DriveErrorMessage }
+  | { type: typeof ACTIONS.ENABLE_DRIVE; payload: { params: Drive } }
+
+const driveReducer = (state: Drive, action: Action): Drive => {
+  switch (action.type) {
+    case ACTIONS.DISABLE_DRIVE:
+      if ('message' in action.payload && 'plural' in action.payload) {
+        const { message, plural } = action.payload
+        return {
+          ...state,
+          isDisabled: true,
+          title: `Missing Drive${plural}`,
+          message: message
+        }
+      }
+
+      return state
+
+    case ACTIONS.ENABLE_DRIVE:
+      return {
+        ...initialDriveState
+      }
+
+    default:
+      return state
+  }
+}
+
 function App(): JSX.Element {
   const ipcHandle = (): void => ipcRenderer.send('startFileWatcher')
-  const [count, setCount] = useState(0)
-  const [width, setWidth] = useState<number>(window.innerWidth)
-  const [height, setHeight] = useState<number>(window.innerHeight)
   const [isOn, toggleIsOn] = useToggle(false)
-  const [messages, setMessages] = useState<TerminalMessage[]>(initialState)
+  const [messages, setMessages] = useState<TerminalMessage[]>(initialMessageState)
+  const [drive, dispatchDrive] = useReducer(driveReducer, initialDriveState)
 
   ipcRenderer.on('receiveData', (_, data: string) => {
     console.log(data)
   })
 
   useEffect(() => {
-    let i: NodeJS.Timeout
-    if (isOn) {
-      i = setInterval(() => {
-        setCount((prev) => prev + 1)
-      }, 1000)
+    const errorDrive = (data: DriveErrorMessage): void => {
+      dispatchDrive({ type: ACTIONS.DISABLE_DRIVE, payload: data })
     }
 
-    return (): void => {
-      clearInterval(i)
-    }
-  }, [isOn])
-
-  useEffect(() => {
-    const handleResize = (): void => {
-      setWidth(window.innerWidth)
-    }
-
-    window.addEventListener('resize', handleResize)
-
-    return (): void => {
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [])
-
-  useEffect(() => {
-    const handleResize = (): void => {
-      setHeight(window.innerHeight)
-    }
-
-    window.addEventListener('resize', handleResize)
-
-    return (): void => {
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [])
-
-  // ipcRenderer.on('data-to-component', (_, data) => {
-  //   console.log('data received in vue component', data)
-  //   setMessage((message) => [...message, data])
-  // })
-
-  useEffect(() => {
     ipcRenderer.on('data-to-component', (_, data) => {
       console.log('data received in react component', data)
       setMessages((message) => [...message, data])
+    })
+
+    ipcRenderer.on('drive-not-found', (_, data) => {
+      console.log('data drive-not-found', data)
+      errorDrive(data)
     })
 
     let intervalId: NodeJS.Timeout | null = null
@@ -128,9 +133,7 @@ function App(): JSX.Element {
           <div className="border border-primary rounded-2xl py-3 text-center">
             <h1 className="font-bold text-5xl">00:21:25</h1>
           </div>
-          <h2 className="text-center text-textSecondary">
-            Connecting time {count} {height}
-          </h2>
+          <h2 className="text-center text-textSecondary">Connecting time</h2>
           <div className="flex items-center justify-center">
             <div className="border border-primaryBg border-r-textSecondary pr-10 flex gap-3">
               <FaNetworkWired className="text-primary text-3xl" />
@@ -147,6 +150,7 @@ function App(): JSX.Element {
               </div>
             </div>
           </div>
+          <pre>{JSON.stringify(drive)}</pre>
           <div className="flex pt-3 justify-center items-center btn-container">
             <img
               src={isOn ? ConnectedBtn : DisconnectedBtn}
@@ -167,9 +171,6 @@ function App(): JSX.Element {
           </div>
         </div>
       </div>
-      {/* <div className="container pt-5 hidden md:block">
-        <Terminal />
-      </div> */}
     </div>
   )
 }

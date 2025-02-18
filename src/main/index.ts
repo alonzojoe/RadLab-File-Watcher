@@ -74,6 +74,10 @@ const checkMappedDrives = (drives: MappedDrives): void => {
     const rawMessage = missingDrivers.join(' and ')
     const drivePlural = missingDrivers.length > 1 ? 's' : ''
     const finalMessage = `Drive${drivePlural} ${rawMessage} do not exist in the Windows devices & drives.`
+    mainWindow?.webContents.send('drive-not-found', {
+      message: finalMessage,
+      plural: drivePlural
+    })
     console.log(finalMessage)
   }
 }
