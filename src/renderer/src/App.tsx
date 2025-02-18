@@ -10,6 +10,7 @@ import useToggle from './hooks/useToggle'
 import moment from 'moment'
 import { TerminalMessage, DriveErrorMessage, Drive } from './types'
 import Header from './components/Header'
+import Message from './components/Message'
 
 const { ipcRenderer } = window.electron
 const dateNow = moment().format('YYYY-MM-DD HH:mm:ss.SSS')
@@ -127,6 +128,7 @@ function App(): JSX.Element {
 
   return (
     <div className="bg-primaryBg  w-full text-white">
+      {drive.isDisabled && <Message message={drive.message} title={drive.title} />}
       <div className="container grid gap-5 md:gap-8 grid-cols-1 md:grid-cols-2 pt-5 md:mt-5">
         <div className="space-y-4">
           <Header isOn={isOn} />
