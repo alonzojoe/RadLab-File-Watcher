@@ -1,18 +1,17 @@
+import { useState, useReducer, useEffect } from 'react'
+import { ACTIONS, driveReducer, initialDriveState } from './reducers/deviceReducer'
+import { TerminalMessage, DriveErrorMessage } from './types'
 import ConnectedBtn from './assets/thunder.png'
 import DisconnectedBtn from './assets/off.png'
-import WatcherImg from './assets/Watcher.png'
-import { useState, useReducer, useEffect } from 'react'
-import { FaCog } from 'react-icons/fa'
-import { FaNetworkWired } from 'react-icons/fa6'
-import { BsFillDeviceHddFill } from 'react-icons/bs'
 import Terminal from './components/Terminal'
 import useToggle from './hooks/useToggle'
 import moment from 'moment'
-import { TerminalMessage, DriveErrorMessage, Drive } from './types'
 import Header from './components/Header'
 import Message from './components/Message'
+import Devices from './components/Devices'
 
 const { ipcRenderer } = window.electron
+
 const dateNow = moment().format('YYYY-MM-DD HH:mm:ss.SSS')
 const initialMessageState = [
   {
@@ -21,46 +20,6 @@ const initialMessageState = [
     text: `Welcome to LIS File Watcher`
   }
 ]
-
-const initialDriveState: Drive = {
-  isDisabled: false,
-  title: '',
-  message: ''
-}
-
-const ACTIONS = {
-  DISABLE_DRIVE: 'disable-drive',
-  ENABLE_DRIVE: 'enable-drive'
-}
-
-type Action =
-  | { type: typeof ACTIONS.DISABLE_DRIVE; payload: DriveErrorMessage }
-  | { type: typeof ACTIONS.ENABLE_DRIVE; payload: { params: Drive } }
-
-const driveReducer = (state: Drive, action: Action): Drive => {
-  switch (action.type) {
-    case ACTIONS.DISABLE_DRIVE:
-      if ('message' in action.payload && 'plural' in action.payload) {
-        const { message, plural } = action.payload
-        return {
-          ...state,
-          isDisabled: true,
-          title: `Missing Drive${plural}`,
-          message: message
-        }
-      }
-
-      return state
-
-    case ACTIONS.ENABLE_DRIVE:
-      return {
-        ...initialDriveState
-      }
-
-    default:
-      return state
-  }
-}
 
 function App(): JSX.Element {
   const ipcHandle = (): void => ipcRenderer.send('startFileWatcher')
@@ -136,23 +95,7 @@ function App(): JSX.Element {
             <h1 className="font-bold text-5xl">00:21:25</h1>
           </div>
           <h2 className="text-center text-textSecondary">Connecting time</h2>
-          <div className="flex items-center justify-center">
-            <div className="border border-primaryBg border-r-textSecondary pr-10 flex gap-3">
-              <FaNetworkWired className="text-primary text-3xl" />
-              <div>
-                <h4 className="font-semibold">Network</h4>
-                <span className="text-green-400 text-sm">Connected</span>
-              </div>
-            </div>
-            <div className="border border-primaryBg border-l-textSecondary pl-10 flex gap-3">
-              <BsFillDeviceHddFill className="text-primary text-3xl" />
-              <div>
-                <h4 className="font-semibold">Drives</h4>
-                <span className="text-green-400 text-sm">Connected</span>
-              </div>
-            </div>
-          </div>
-          <pre>{JSON.stringify(drive)}</pre>
+          <Devices deviceConnected={!drive.isDisabled} />
           <div className="flex pt-3 justify-center items-center btn-container">
             <img
               src={isOn ? ConnectedBtn : DisconnectedBtn}
