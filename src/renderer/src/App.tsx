@@ -92,7 +92,7 @@ function App(): JSX.Element {
       <div className="container grid gap-5 md:gap-8 grid-cols-1 md:grid-cols-2 pt-5 md:mt-5">
         <div className="space-y-4">
           <Header isOn={isOn} />
-          <Timer />
+          <Timer isActivated={true} dateActivated={new Date()} />
           <Devices deviceConnected={!drive.isDisabled} />
           <div className="flex pt-3 justify-center items-center btn-container">
             <img

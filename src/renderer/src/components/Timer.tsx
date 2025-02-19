@@ -7,13 +7,16 @@ import {
   differenceInSeconds
 } from 'date-fns'
 
+type TimerProps = {
+  dateActivated: Date
+  isActivated: boolean
+}
+
 const getManilaTime = (): Date => {
   return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }))
 }
 
-const Timer = (): JSX.Element => {
-  const START_DATE = new Date()
-
+const Timer = ({ dateActivated, isActivated }: TimerProps): JSX.Element => {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({
     days: 0,
     hours: 0,
@@ -25,12 +28,14 @@ const Timer = (): JSX.Element => {
     const timer = setInterval(() => {
       const now = getManilaTime()
 
-      const days = Math.abs(differenceInDays(now, START_DATE))
-      const hours = Math.abs(differenceInHours(now, START_DATE) % 24)
-      const minutes = Math.abs(differenceInMinutes(now, START_DATE) % 60)
-      const seconds = Math.abs(differenceInSeconds(now, START_DATE) % 60)
+      if (isActivated) {
+        const days = Math.abs(differenceInDays(now, dateActivated))
+        const hours = Math.abs(differenceInHours(now, dateActivated) % 24)
+        const minutes = Math.abs(differenceInMinutes(now, dateActivated) % 60)
+        const seconds = Math.abs(differenceInSeconds(now, dateActivated) % 60)
 
-      setTimeLeft({ days, hours, minutes, seconds })
+        setTimeLeft({ days, hours, minutes, seconds })
+      }
     }, 1000)
 
     return (): void => clearInterval(timer)
@@ -41,12 +46,12 @@ const Timer = (): JSX.Element => {
   const MINUTES = timeLeft.minutes.toString().padStart(2, '0')
   const SECONDS = timeLeft.seconds.toString().padStart(2, '0')
 
-  const Formmated_Timer = `${DAYS}:${HOURS}:${MINUTES}:${SECONDS}`
+  const Formatted_Timer = `${DAYS}:${HOURS}:${MINUTES}:${SECONDS}`
 
   return (
     <>
       <div className="border border-primary rounded-2xl py-3 text-center">
-        <h1 className="font-bold text-5xl">{Formmated_Timer}</h1>
+        <h1 className="font-bold text-5xl">{Formatted_Timer}</h1>
       </div>
       <h2 className="text-center text-textSecondary">Connecting time</h2>
     </>
