@@ -27,6 +27,7 @@
     "axios": "^1.7.9",
     "chokidar": "^4.0.3",
     "crypto": "^1.0.1",
+    "date-fns": "^4.1.0",
     "electron-updater": "^6.1.7",
     "fs-extra": "^11.3.0",
     "js-cookie": "^3.0.5",

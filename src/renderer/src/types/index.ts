@@ -14,3 +14,10 @@ export interface Drive {
   title: string
   message: string
 }
+
+export interface TimeLeft {
+  days: number
+  hours: number
+  minutes: number
+  seconds: number
+}
