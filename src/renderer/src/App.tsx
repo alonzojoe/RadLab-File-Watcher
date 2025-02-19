@@ -9,6 +9,7 @@ import moment from 'moment'
 import Header from './components/Header'
 import Message from './components/Message'
 import Devices from './components/Devices'
+import Timer from './components/Timer'
 
 const { ipcRenderer } = window.electron
 
@@ -91,10 +92,7 @@ function App(): JSX.Element {
       <div className="container grid gap-5 md:gap-8 grid-cols-1 md:grid-cols-2 pt-5 md:mt-5">
         <div className="space-y-4">
           <Header isOn={isOn} />
-          <div className="border border-primary rounded-2xl py-3 text-center">
-            <h1 className="font-bold text-5xl">00:21:25</h1>
-          </div>
-          <h2 className="text-center text-textSecondary">Connecting time</h2>
+          <Timer />
           <Devices deviceConnected={!drive.isDisabled} />
           <div className="flex pt-3 justify-center items-center btn-container">
             <img
