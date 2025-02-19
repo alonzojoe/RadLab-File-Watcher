@@ -136,7 +136,7 @@ function App(): JSX.Element {
             <h1 className="font-bold text-5xl">00:21:25</h1>
           </div>
           <h2 className="text-center text-textSecondary">Connecting time</h2>
-          <Devices />
+          <Devices deviceConnected={!drive.isDisabled} />
           <div className="flex pt-3 justify-center items-center btn-container">
             <img
               src={isOn ? ConnectedBtn : DisconnectedBtn}

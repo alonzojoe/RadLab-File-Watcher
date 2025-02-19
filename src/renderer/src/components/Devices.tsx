@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { FaNetworkWired } from 'react-icons/fa6'
 import { BsFillDeviceHddFill } from 'react-icons/bs'
 import useEventListener from '@renderer/hooks/useEventListener'
 
-const Devices = (): JSX.Element => {
+const Devices = ({ deviceConnected }: { deviceConnected: boolean }): JSX.Element => {
   const [isOnline, setIsOnline] = useState(navigator.onLine)
 
   const handleOnline = (): void => setIsOnline(true)
@@ -25,6 +25,10 @@ const Devices = (): JSX.Element => {
     network: {
       class: isOnline ? `text-green-400` : `text-red-400`,
       text: isOnline ? 'Connected' : 'Disconnected'
+    },
+    device: {
+      class: deviceConnected ? `text-green-400` : `text-red-400`,
+      text: deviceConnected ? 'Connected' : 'Disconnected'
     }
   }
 
@@ -41,7 +45,7 @@ const Devices = (): JSX.Element => {
         <BsFillDeviceHddFill className="text-primary text-3xl" />
         <div>
           <h4 className="font-semibold">Drives</h4>
-          <span className="text-green-400 text-sm">Connected</span>
+          <span className={`${style.device.class} text-sm`}>{style.device.text}</span>
         </div>
       </div>
     </div>
