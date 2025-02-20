@@ -164,6 +164,12 @@ const startFileWatcher = (): void => {
     persistent: true
   })
 
+  sendDataToComponent({
+    timestamp: dateNow,
+    color: `text-green-500`,
+    text: `File Watcher started.`
+  })
+
   watcherRunning = true
   console.log(`Watching changes in ${ordersFolder}`)
 
@@ -336,12 +342,11 @@ const startFileWatcher = (): void => {
 }
 
 const stopFileWatcher = (): void => {
-  const currentDateTime = moment().format('YYYY-MM-DD HH:mm:ss.SSS')
   if (watcher) {
     watcher.close()
     watcher = null
     sendDataToComponent({
-      timestamp: currentDateTime,
+      timestamp: dateNow,
       color: `text-red-500`,
       text: `File Watcher stopped.`
     })
