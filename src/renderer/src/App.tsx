@@ -23,7 +23,8 @@ const initialMessageState = [
 ]
 
 function App(): JSX.Element {
-  const ipcHandle = (): void => ipcRenderer.send('startFileWatcher')
+  const startToggle = (): void => ipcRenderer.send('startFileWatcher')
+  const stopToggle = (): void => ipcRenderer.send('stopFileWatcher')
   const [isOn, toggleIsOn] = useToggle(false)
   const [messages, setMessages] = useState<TerminalMessage[]>(initialMessageState)
   const [drive, dispatchDrive] = useReducer(driveReducer, initialDriveState)
@@ -77,10 +78,19 @@ function App(): JSX.Element {
 
   const startFileWatcher = (): void => {
     toggleIsOn()
-    ipcHandle()
+    startToggle()
     setTimerData({
       isActivated: true,
       dateActivated: new Date()
+    })
+  }
+
+  const stopFileWatcher = (): void => {
+    toggleIsOn()
+    stopToggle()
+    setTimerData({
+      isActivated: false,
+      dateActivated: null
     })
   }
 
@@ -107,7 +117,7 @@ function App(): JSX.Element {
               src={isOn ? ConnectedBtn : DisconnectedBtn}
               className="bg-primary rounded-full cursor-pointer btn-pulse h-auto w-[150px] z-10"
               alt="btn"
-              onClick={startFileWatcher}
+              onClick={isOn ? stopFileWatcher : startFileWatcher}
             />
             {isOn && <div className="btn-shadow"></div>}
           </div>
