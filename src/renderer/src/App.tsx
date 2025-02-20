@@ -37,6 +37,34 @@ function App(): JSX.Element {
     console.log(data)
   })
 
+  const startFileWatcher = (): void => {
+    toggleIsOn()
+    startToggle()
+    setTimerData({
+      isActivated: true,
+      dateActivated: new Date()
+    })
+  }
+
+  const stopFileWatcher = async (): Promise<void> => {
+    toggleIsOn()
+    stopToggle()
+    setTimerData({
+      isActivated: false,
+      dateActivated: null
+    })
+  }
+
+  const clearTerminal = (): void => {
+    const resetMessage = {
+      timestamp: dateNow,
+      color: `text-white`,
+      text: `The terminal was automatically cleared.`
+    } satisfies TerminalMessage
+
+    setMessages([resetMessage])
+  }
+
   useEffect(() => {
     const errorDrive = (data: DriveErrorMessage): void => {
       dispatchDrive({ type: ACTIONS.DISABLE_DRIVE, payload: data })
@@ -70,39 +98,47 @@ function App(): JSX.Element {
       }
     }
 
+    let restartIntervalId: NodeJS.Timeout | null = null
+
+    const stopStart = async (): Promise<void | undefined> => {
+      try {
+        console.log(`Stopping file watcher`)
+        await stopFileWatcher()
+        console.log(`Attempting to start file watcher`)
+        startFileWatcher()
+        console.log(`File Watcher restarted.`)
+      } catch (error) {
+        if (error instanceof Error) {
+          console.log(`Error restarting file watcher: ${error.message}`)
+          return
+        }
+        console.log(`error occured ${error}`)
+      }
+    }
+
+    const stopAutoRestart = (): void => {
+      if (restartIntervalId) {
+        clearInterval(restartIntervalId)
+        restartIntervalId = null
+      }
+    }
+
+    const autoRestart = (): void => {
+      stopAutoRestart()
+
+      restartIntervalId = setInterval(() => {
+        console.log('Auto restart running')
+        stopStart()
+      }, moment.duration(4, 'hours').asMilliseconds())
+    }
+
+    autoRestart()
     startInterval()
     return (): void => {
       stopInterval()
+      stopAutoRestart()
     }
   }, [])
-
-  const startFileWatcher = (): void => {
-    toggleIsOn()
-    startToggle()
-    setTimerData({
-      isActivated: true,
-      dateActivated: new Date()
-    })
-  }
-
-  const stopFileWatcher = (): void => {
-    toggleIsOn()
-    stopToggle()
-    setTimerData({
-      isActivated: false,
-      dateActivated: null
-    })
-  }
-
-  const clearTerminal = (): void => {
-    const resetMessage = {
-      timestamp: dateNow,
-      color: `text-white`,
-      text: `The terminal was automatically cleared.`
-    } satisfies TerminalMessage
-
-    setMessages([resetMessage])
-  }
 
   return (
     <div className="bg-primaryBg  w-full text-white">
