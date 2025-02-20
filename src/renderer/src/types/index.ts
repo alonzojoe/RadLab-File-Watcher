@@ -21,3 +21,8 @@ export interface TimeLeft {
   minutes: number
   seconds: number
 }
+
+export interface TimerData {
+  isActivated: boolean
+  dateActivated: Date | null
+}
