@@ -101,7 +101,6 @@ function App(): JSX.Element {
         <div className="space-y-4">
           <Header isOn={isOn} />
           <Timer isActivated={timerData.isActivated} dateActivated={timerData.dateActivated} />
-          <pre>{JSON.stringify(timerData)}</pre>
           <Devices deviceConnected={!drive.isDisabled} />
           <div className="flex pt-3 justify-center items-center btn-container">
             <img
