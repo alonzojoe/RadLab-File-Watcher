@@ -1,8 +1,6 @@
-import { Fragment, useRef } from 'react'
-import type { TMessage } from '../../../types/types'
+import { useRef } from 'react'
+import type { TMessage } from '../types'
 import { useEffect } from 'react'
-
-const DIV_COUNT = Array.from({ length: 10 }, (_, index) => index + 1)
 
 type TerminalProps = {
   messages: TMessage[]
@@ -31,8 +29,8 @@ const Terminal = ({ messages }: TerminalProps): JSX.Element => {
     >
       <>
         {messages.map((content, index) => (
-          <div className={`text-sm font-semibold`} key={`${index}-${content.timestamp}`}>
-            🚀${' '}
+          <div className={`text-sm font-thin`} key={`${index}-${content.timestamp}`}>
+            🚀 ${' '}
             <span className={`${content.color}`}>{`${content.timestamp}: ${content.text}`}</span>
           </div>
         ))}

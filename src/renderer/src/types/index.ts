@@ -26,3 +26,9 @@ export interface TimerData {
   isActivated: boolean
   dateActivated: Date | null
 }
+
+export type TMessage = {
+  timestamp: string
+  color: string
+  text: string
+}
