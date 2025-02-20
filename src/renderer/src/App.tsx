@@ -138,7 +138,7 @@ function App(): JSX.Element {
       stopInterval()
       stopAutoRestart()
     }
-  }, [stopFileWatcher, startFileWatcher, clearTerminal])
+  }, [])
 
   return (
     <div className="bg-primaryBg  w-full text-white">

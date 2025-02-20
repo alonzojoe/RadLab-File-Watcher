@@ -165,12 +165,6 @@ const startFileWatcher = (): void => {
     persistent: true
   })
 
-  sendDataToComponent({
-    timestamp: dateNow,
-    color: `text-green-500`,
-    text: `File Watcher started.`
-  })
-
   watcherRunning = true
   console.log(`Watching changes in ${ordersFolder}`)
 
@@ -398,6 +392,11 @@ app.whenReady().then(async () => {
 
   ipcMain.on('startFileWatcher', () => {
     console.log('File Watcher started')
+    sendDataToComponent({
+      timestamp: dateNow,
+      color: `text-green-500`,
+      text: `File Watcher started.`
+    })
     startFileWatcher()
   })
 
