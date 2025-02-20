@@ -8,7 +8,7 @@ import {
 } from 'date-fns'
 
 type TimerProps = {
-  dateActivated: Date
+  dateActivated: Date | null
   isActivated: boolean
 }
 
@@ -27,8 +27,8 @@ const Timer = ({ dateActivated, isActivated }: TimerProps): JSX.Element => {
   useEffect(() => {
     const timer = setInterval(() => {
       const now = getManilaTime()
-
-      if (isActivated) {
+      console.log('tiemr component', isActivated, dateActivated)
+      if (isActivated && dateActivated) {
         const days = Math.abs(differenceInDays(now, dateActivated))
         const hours = Math.abs(differenceInHours(now, dateActivated) % 24)
         const minutes = Math.abs(differenceInMinutes(now, dateActivated) % 60)
@@ -39,7 +39,7 @@ const Timer = ({ dateActivated, isActivated }: TimerProps): JSX.Element => {
     }, 1000)
 
     return (): void => clearInterval(timer)
-  }, [])
+  }, [isActivated, dateActivated])
 
   const DAYS = timeLeft.days.toString().padStart(2, '0')
   const HOURS = timeLeft.hours.toString().padStart(2, '0')

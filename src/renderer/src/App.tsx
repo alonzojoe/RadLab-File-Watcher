@@ -1,6 +1,6 @@
 import { useState, useReducer, useEffect } from 'react'
 import { ACTIONS, driveReducer, initialDriveState } from './reducers/deviceReducer'
-import { TerminalMessage, DriveErrorMessage } from './types'
+import { TerminalMessage, DriveErrorMessage, TimerData } from './types'
 import ConnectedBtn from './assets/thunder.png'
 import DisconnectedBtn from './assets/off.png'
 import Terminal from './components/Terminal'
@@ -23,10 +23,15 @@ const initialMessageState = [
 ]
 
 function App(): JSX.Element {
-  const ipcHandle = (): void => ipcRenderer.send('startFileWatcher')
+  const startToggle = (): void => ipcRenderer.send('startFileWatcher')
+  const stopToggle = (): void => ipcRenderer.send('stopFileWatcher')
   const [isOn, toggleIsOn] = useToggle(false)
   const [messages, setMessages] = useState<TerminalMessage[]>(initialMessageState)
   const [drive, dispatchDrive] = useReducer(driveReducer, initialDriveState)
+  const [timerData, setTimerData] = useState<TimerData>({
+    isActivated: false,
+    dateActivated: null
+  })
 
   ipcRenderer.on('receiveData', (_, data: string) => {
     console.log(data)
@@ -73,7 +78,20 @@ function App(): JSX.Element {
 
   const startFileWatcher = (): void => {
     toggleIsOn()
-    ipcHandle()
+    startToggle()
+    setTimerData({
+      isActivated: true,
+      dateActivated: new Date()
+    })
+  }
+
+  const stopFileWatcher = (): void => {
+    toggleIsOn()
+    stopToggle()
+    setTimerData({
+      isActivated: false,
+      dateActivated: null
+    })
   }
 
   const clearTerminal = (): void => {
@@ -92,14 +110,14 @@ function App(): JSX.Element {
       <div className="container grid gap-5 md:gap-8 grid-cols-1 md:grid-cols-2 pt-5 md:mt-5">
         <div className="space-y-4">
           <Header isOn={isOn} />
-          <Timer isActivated={true} dateActivated={new Date()} />
+          <Timer isActivated={timerData.isActivated} dateActivated={timerData.dateActivated} />
           <Devices deviceConnected={!drive.isDisabled} />
           <div className="flex pt-3 justify-center items-center btn-container">
             <img
               src={isOn ? ConnectedBtn : DisconnectedBtn}
               className="bg-primary rounded-full cursor-pointer btn-pulse h-auto w-[150px] z-10"
               alt="btn"
-              onClick={startFileWatcher}
+              onClick={isOn ? stopFileWatcher : startFileWatcher}
             />
             {isOn && <div className="btn-shadow"></div>}
           </div>
