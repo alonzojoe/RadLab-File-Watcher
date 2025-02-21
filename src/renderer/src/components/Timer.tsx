@@ -48,12 +48,14 @@ const Timer = ({ dateActivated, isActivated }: TimerProps): JSX.Element => {
 
   const Formatted_Timer = `${DAYS}:${HOURS}:${MINUTES}:${SECONDS}`
 
+  const timerMessage = isActivated ? `Connecting time` : `Not Connected`
+
   return (
     <>
       <div className="border border-primary rounded-2xl py-3 text-center">
         <h1 className="font-bold text-5xl">{Formatted_Timer}</h1>
       </div>
-      <h2 className="text-center text-textSecondary">Connecting time</h2>
+      <h2 className="text-center text-textSecondary">{timerMessage}</h2>
     </>
   )
 }
