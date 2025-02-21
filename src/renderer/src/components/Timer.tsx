@@ -27,7 +27,7 @@ const Timer = ({ dateActivated, isActivated }: TimerProps): JSX.Element => {
   useEffect(() => {
     const timer = setInterval(() => {
       const now = getManilaTime()
-      console.log('tiemr component', isActivated, dateActivated)
+
       if (isActivated && dateActivated) {
         const days = Math.abs(differenceInDays(now, dateActivated))
         const hours = Math.abs(differenceInHours(now, dateActivated) % 24)
