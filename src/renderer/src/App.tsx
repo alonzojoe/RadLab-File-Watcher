@@ -139,6 +139,7 @@ function App(): JSX.Element {
     autoRestart()
     startInterval()
     return (): void => {
+      ipcRenderer.removeAllListeners('data-to-component')
       stopInterval()
       stopAutoRestart()
     }
