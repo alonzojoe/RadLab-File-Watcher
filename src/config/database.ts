@@ -29,9 +29,11 @@ export const updateDocumentPath = async (
   renderNumber: string,
   documentPath: string
 ): Promise<void> => {
+  const trimmedPath = documentPath.replace(/^[A-Z]:/, '')
+  console.log('trimmed path', trimmedPath)
   const updatePath = `
   UPDATE rd
-  SET rd.DocumentPath = '${documentPath}'
+  SET rd.DocumentPath = '${trimmedPath}'
   FROM RenderDetails rd
   JOIN RenderHeader rh
       ON rd.RenderID = rh.ID

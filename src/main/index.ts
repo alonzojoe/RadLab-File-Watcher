@@ -12,10 +12,15 @@ import chokidar, { type FSWatcher } from 'chokidar'
 import { extractFileName } from '../renderer/src/libs/utils'
 import path from 'path'
 import { connectDB, updateDocumentPath } from '../config/database'
+import EventEmitter from 'events'
 
 let watcher: FSWatcher | null = null
 let mainWindow: BrowserWindow | null = null
 const dateNow = moment().format('YYYY-MM-DD HH:mm:ss.SSS')
+
+const emitter = new EventEmitter()
+
+emitter.setMaxListeners(999999)
 
 function createWindow(): void {
   // Create the browser window.
