@@ -70,18 +70,17 @@ function App(): JSX.Element {
       dispatchDrive({ type: ACTIONS.DISABLE_DRIVE, payload: data })
     }
 
-    const handleData = (_, data): void => {
+    const handleData = (_: unknown, data: TerminalMessage): void => {
       console.log('data received in react component', data)
       setMessages((message) => [...message, data])
     }
 
-    const handleDriveData = (_, data): void => {
+    const handleDriveData = (_: unknown, data: DriveErrorMessage): void => {
       console.log('data drive-not-found', data)
       errorDrive(data)
     }
 
     ipcRenderer.on('data-to-component', handleData)
-
     ipcRenderer.on('drive-not-found', handleDriveData)
 
     let intervalId: NodeJS.Timeout | null = null
@@ -99,24 +98,27 @@ function App(): JSX.Element {
     const stopInterval = (): void => {
       if (intervalId) {
         clearInterval(intervalId)
+        intervalId = null
       }
     }
 
     let restartIntervalId: NodeJS.Timeout | null = null
 
-    const stopStart = async (): Promise<void | undefined> => {
+    const stopStart = async (): Promise<void> => {
       try {
-        console.log(`Stopping file watcher`)
+        console.log('Stopping file watcher')
         await stopFileWatcher()
-        console.log(`Attempting to start file watcher`)
-        startFileWatcher()
-        console.log(`File Watcher restarted.`)
+        console.log('Attempting to start file watcher')
+        setTimeout(() => {
+          startFileWatcher()
+        }, 500)
+        console.log('File Watcher restarted.')
       } catch (error) {
         if (error instanceof Error) {
           console.log(`Error restarting file watcher: ${error.message}`)
           return
         }
-        console.log(`error occured ${error}`)
+        console.log(`Error occurred: ${error}`)
       }
     }
 
@@ -133,14 +135,15 @@ function App(): JSX.Element {
       restartIntervalId = setInterval(() => {
         console.log('Auto restart running')
         stopStart()
-      }, moment.duration(4, 'hours').asMilliseconds())
+      }, moment.duration(3, 'hours').asMilliseconds())
     }
 
     autoRestart()
     startInterval()
+
     return (): void => {
-      ipcRenderer.removeAllListeners('data-to-component')
-      ipcRenderer.removeAllListeners('drive-not-found')
+      ipcRenderer.removeListener('data-to-component', handleData)
+      ipcRenderer.removeListener('drive-not-found', handleDriveData)
       stopInterval()
       stopAutoRestart()
     }
