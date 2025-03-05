@@ -298,7 +298,7 @@ const startFileWatcher = (): void => {
       clearTimeout(processNextFileTimeout)
     }
 
-    processNextFileTimeout = setTimeout(processNextFile, 30000)
+    processNextFileTimeout = setTimeout(processNextFile, 15000)
   }
 
   const processNextFile = (): void => {
