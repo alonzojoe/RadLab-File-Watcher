@@ -1,7 +1,7 @@
 {
   "name": "radlab-file-watcher",
   "version": "1.0.0",
-  "description": "An file watcher for Laboratory and Radiology Patients Results",
+  "description": "radlab-file-watcher",
   "main": "./out/main/index.js",
   "author": "Joenell Alonzo",
   "homepage": "https://electron-vite.org",
@@ -40,6 +40,8 @@
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",
     "@electron-toolkit/eslint-config-ts": "^2.0.0",
     "@electron-toolkit/tsconfig": "^1.0.1",
+    "@electron/packager": "^18.3.6",
+    "@types/electron": "^1.6.12",
     "@types/node": "^20.14.8",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

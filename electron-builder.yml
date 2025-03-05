@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: sample-r-ts
+appId: com.electron.lis-file-watcher
+productName: lis-file-watcher
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: sample-r-ts
+  executableName: lis-file-watcher
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
@@ -37,9 +37,10 @@ linux:
   category: Utility
 appImage:
   artifactName: ${name}-${version}.${ext}
-npmRebuild: false
+npmRebuild: true
 publish:
   provider: generic
   url: https://example.com/auto-updates
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
+includeSubNodeModules: true
