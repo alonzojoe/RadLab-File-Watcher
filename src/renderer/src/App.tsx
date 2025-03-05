@@ -142,6 +142,8 @@ function App(): JSX.Element {
     startInterval()
 
     return (): void => {
+      ipcRenderer.removeListener('data-to-component', handleData)
+      ipcRenderer.removeListener('drive-not-found', handleDriveData)
       stopInterval()
       stopAutoRestart()
     }
