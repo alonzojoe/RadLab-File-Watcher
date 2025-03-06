@@ -205,10 +205,6 @@ const startFileWatcher = (): void => {
     const pathDay = join(pathMonth, day)
     const tempDestinationPath = join(pathDay, `${fileName}.tmp`)
     const finalDestinationPath = join(pathDay, fileName)
-    ///api endpoint check
-
-    //
-    ///end api endpoint check
 
     await ensureDirectories([pathYear, pathMonth, pathDay])
 
@@ -341,7 +337,7 @@ const startFileWatcher = (): void => {
     }
   })
 
-  watcher.on(`error`, (error: unknown) => {
+  watcher.on('error', (error: unknown) => {
     if (error instanceof Error) {
       console.log('File Watcher caught and Error', error?.message)
     } else {
@@ -349,10 +345,23 @@ const startFileWatcher = (): void => {
     }
   })
 
-  // watcher!.on('close', () => {
-  //   console.log('File Watcher stopped')
-  //   watcherRunning = false
-  // })
+  // Initial scan of the directory
+  watcher.on('ready', () => {
+    console.log('Initial scan complete. Watching for changes...')
+    fs.readdir(ordersFolder, (err, files) => {
+      if (err) {
+        console.error('Error reading directory:', err)
+        return
+      }
+      files.forEach((file) => {
+        const filePath = join(ordersFolder, file)
+        const fileExtension = path.extname(filePath).toLowerCase()
+        if (fileExtension === '.pdf' && watcher) {
+          watcher.emit('add', filePath)
+        }
+      })
+    })
+  })
 
   startMonitor()
 }
