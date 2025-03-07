@@ -159,13 +159,23 @@ const handleFileCopyError = async (
 ): Promise<void> => {
   if (err.code === 'EBUSY' && retries < maxRetries - 1) {
     console.log(`Retrying copy (${retries + 1}/${maxRetries})...`)
+    sendDataToComponent({
+      timestamp: dateNow,
+      color: `text-red-500`,
+      text: `Retrying copy (${retries + 1}/${maxRetries})...`
+    })
     await new Promise((resolve) => setTimeout(resolve, 10000))
   } else {
     console.error(`Error copying ${fileName}: ${err.message}`)
-
+    sendDataToComponent({
+      timestamp: dateNow,
+      color: `text-red-500`,
+      text: `Exception: ${err?.message}`
+    })
     if (fs.existsSync(tempDestinationPath)) {
       await fsExtra.remove(tempDestinationPath)
     }
+    restartFileWatcher()
   }
   return
 }
@@ -307,10 +317,23 @@ const startFileWatcher = (): void => {
     processNextFileTimeout = setTimeout(processNextFile, 15000)
   }
 
-  const processNextFile = (): void => {
+  const processNextFile = async (): Promise<void> => {
+    // const nextFile = watcherQueue.shift()
+    // if (nextFile) {
+    //   tryToMoveFile(nextFile)
+    // } else {
+    //   isProcessing = false
+    // }
+
     const nextFile = watcherQueue.shift()
     if (nextFile) {
-      tryToMoveFile(nextFile)
+      try {
+        await tryToMoveFile(nextFile)
+      } catch (error) {
+        console.error(`Error processing file ${nextFile}:`, error)
+      } finally {
+        processNextFile()
+      }
     } else {
       isProcessing = false
     }
@@ -358,6 +381,7 @@ const startFileWatcher = (): void => {
     } else {
       console.log(`Unexpected Error type: ${error}`)
     }
+    restartFileWatcher()
   })
 
   // Initial scan of the directory
