@@ -306,10 +306,26 @@ const startFileWatcher = (): void => {
     processNextFileTimeout = setTimeout(processNextFile, 15000)
   }
 
-  const processNextFile = (): void => {
+  const processNextFile = async (): Promise<void> => {
+    // const nextFile = watcherQueue.shift()
+    // if (nextFile) {
+    //   tryToMoveFile(nextFile)
+    // } else {
+    //   isProcessing = false
+    // }
     const nextFile = watcherQueue.shift()
     if (nextFile) {
-      tryToMoveFile(nextFile)
+      try {
+        await tryToMoveFile(nextFile)
+      } catch (error) {
+        console.error(`Error processing file ${nextFile}:`, error)
+      } finally {
+        if (watcherQueue.length > 0) {
+          processNextFile()
+        } else {
+          isProcessing = false
+        }
+      }
     } else {
       isProcessing = false
     }
