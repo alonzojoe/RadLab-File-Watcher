@@ -118,7 +118,7 @@ const setTerminal = (color: string, results: string): void => {
 const isFileStable = async ({
   filepath,
   interval = 500,
-  retries = 5
+  retries = 15
 }: TFileStable): Promise<boolean | void> => {
   let lastSize = 0
 
