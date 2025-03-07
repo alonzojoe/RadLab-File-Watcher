@@ -238,6 +238,11 @@ const startFileWatcher = (): void => {
         return
       } catch (error) {
         if (error instanceof Error && 'code' in error) {
+          sendDataToComponent({
+            timestamp: dateNow,
+            color: `text-red-500`,
+            text: `Exception: ${error?.message}`
+          })
           await handleFileCopyError(
             error as NodeJS.ErrnoException,
             retries,
@@ -287,6 +292,11 @@ const startFileWatcher = (): void => {
     } catch (error) {
       if (error instanceof Error) {
         console.log(`an error occured ${error?.message}`)
+        sendDataToComponent({
+          timestamp: dateNow,
+          color: `text-red-500`,
+          text: `Exception: ${error?.message}`
+        })
       }
     }
 
@@ -340,6 +350,11 @@ const startFileWatcher = (): void => {
   watcher.on('error', (error: unknown) => {
     if (error instanceof Error) {
       console.log('File Watcher caught and Error', error?.message)
+      sendDataToComponent({
+        timestamp: dateNow,
+        color: `text-red-500`,
+        text: `Exception: ${error?.message}`
+      })
     } else {
       console.log(`Unexpected Error type: ${error}`)
     }
