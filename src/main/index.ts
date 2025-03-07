@@ -212,11 +212,16 @@ const startFileWatcher = (): void => {
 
     await ensureDirectories([pathYear, pathMonth, pathDay])
 
-    await isFileStable({
+    const isStable = await isFileStable({
       filepath: filePath,
       interval: 500,
-      retries: 5
+      retries: 15
     })
+
+    if (!isStable) {
+      console.log(`File ${fileName} is not stable. Skipping...`)
+      return
+    }
 
     const originalHashFileName = await hashedFileName(filePath)
 
@@ -321,20 +326,42 @@ const startFileWatcher = (): void => {
     }
   }
 
-  watcher.on('add', (filePath: string) => {
+  watcher.on('add', async (filePath: string) => {
+    // const fileExtension = path.extname(filePath).toLowerCase()
+    // if (fileExtension === '.pdf') {
+    //   if (!isProcessing && fs.existsSync(filePath)) {
+    //     isProcessing = true
+    //     watcherQueue.push(filePath)
+    //     const fileToProcess = watcherQueue.shift()
+    //     if (fileToProcess) {
+    //       tryToMoveFile(fileToProcess)
+    //     }
+    //   } else if (fs.existsSync(filePath)) {
+    //     watcherQueue.push(filePath)
+    //   } else {
+    //     console.error(`File does not exist: ${filePath}`)
+    //   }
+    // }
     const fileExtension = path.extname(filePath).toLowerCase()
     if (fileExtension === '.pdf') {
-      if (!isProcessing && fs.existsSync(filePath)) {
-        isProcessing = true
-        watcherQueue.push(filePath)
+      if (fs.existsSync(filePath)) {
+        const isStable = await isFileStable({
+          filepath: filePath,
+          interval: 500,
+          retries: 10
+        })
 
-        const fileToProcess = watcherQueue.shift()
-
-        if (fileToProcess) {
-          tryToMoveFile(fileToProcess)
+        if (isStable) {
+          if (!isProcessing) {
+            isProcessing = true
+            watcherQueue.push(filePath)
+            processNextFile()
+          } else {
+            watcherQueue.push(filePath)
+          }
+        } else {
+          console.log(`File ${filePath} is not stable. Skipping...`)
         }
-      } else if (fs.existsSync(filePath)) {
-        watcherQueue.push(filePath)
       } else {
         console.error(`File does not exist: ${filePath}`)
       }
