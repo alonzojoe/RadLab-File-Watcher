@@ -117,7 +117,7 @@ const setTerminal = (color: string, results: string): void => {
 
 const isFileStable = async ({
   filepath,
-  interval = 2000,
+  interval = 1000,
   retries = 10
 }: TFileStable): Promise<boolean | void> => {
   let lastSize = 0
@@ -206,17 +206,27 @@ const startFileWatcher = (): void => {
     const tempDestinationPath = join(pathDay, `${fileName}.tmp`)
     const finalDestinationPath = join(pathDay, fileName)
 
-    await ensureDirectories([pathYear, pathMonth, pathDay])
-
-    await isFileStable({
+    const fileStable = await isFileStable({
       filepath: filePath,
-      interval: 500,
-      retries: 5
+      interval: 1000,
+      retries: 10
     })
+
+    if (!fileStable) {
+      console.error(`File ${filePath} is not stable`)
+      sendDataToComponent({
+        timestamp: dateNow,
+        color: `text-green-500`,
+        text: `File ${filePath} is not stable`
+      })
+      return
+    }
+
+    await ensureDirectories([pathYear, pathMonth, pathDay])
 
     const originalHashFileName = await hashedFileName(filePath)
 
-    const max_retries = 3
+    const max_retries = 5
 
     for (let retries = 0; retries < max_retries; retries++) {
       try {
