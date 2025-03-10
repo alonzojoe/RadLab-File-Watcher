@@ -117,8 +117,8 @@ const setTerminal = (color: string, results: string): void => {
 
 const isFileStable = async ({
   filepath,
-  interval = 500,
-  retries = 5
+  interval = 2000,
+  retries = 10
 }: TFileStable): Promise<boolean | void> => {
   let lastSize = 0
 
@@ -205,10 +205,6 @@ const startFileWatcher = (): void => {
     const pathDay = join(pathMonth, day)
     const tempDestinationPath = join(pathDay, `${fileName}.tmp`)
     const finalDestinationPath = join(pathDay, fileName)
-    ///api endpoint check
-
-    //
-    ///end api endpoint check
 
     await ensureDirectories([pathYear, pathMonth, pathDay])
 
@@ -233,7 +229,6 @@ const startFileWatcher = (): void => {
           throw new Error(`Hashed File mismatch: ${fileName}`)
         }
 
-        //file renaming
         await fsExtra.move(tempDestinationPath, finalDestinationPath, { overwrite: true })
 
         console.log(`Copied ${fileName} successully`)
@@ -266,13 +261,13 @@ const startFileWatcher = (): void => {
 
       const patientDetails = extractFileName(fileName) // to be used in api call
       console.log('Extracted File Name', patientDetails)
-      //api call here
+
       const templateCode = patientDetails[0]
       const renderNumber = patientDetails[1]
       const patientName = patientDetails[2]
-
+      //api call here
       await updateDocumentPath(templateCode, renderNumber, destinationPath)
-
+      //end api call here
       console.log('LIS TemplateCode', templateCode)
       console.log('Render Number', renderNumber)
       console.log('PatientName', patientName)
@@ -283,11 +278,8 @@ const startFileWatcher = (): void => {
         color: `text-green-500`,
         text: `${patientName} results have been uploaded`
       }
-
+      //send message to component terminal
       sendDataToComponent(data)
-      //end api call here
-
-      //send message to component
     } catch (error) {
       if (error instanceof Error) {
         console.log(`an error occured ${error?.message}`)
