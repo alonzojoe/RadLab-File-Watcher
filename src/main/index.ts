@@ -132,6 +132,7 @@ const isFileStable = async ({
     lastSize = size
     await new Promise((resolve) => setTimeout(resolve, interval))
   }
+  return false
 }
 
 const hashedFileName = async (filePath: string): Promise<string> => {
@@ -216,9 +217,10 @@ const startFileWatcher = (): void => {
       console.error(`File ${filePath} is not stable`)
       sendDataToComponent({
         timestamp: dateNow,
-        color: `text-green-500`,
+        color: `text-red-500`,
         text: `File ${filePath} is not stable`
       })
+      processNextFile()
       return
     }
 
