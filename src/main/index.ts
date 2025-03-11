@@ -403,7 +403,7 @@ const startFileWatcher = (): void => {
       clearTimeout(processNextFileTimeout)
     }
 
-    processNextFileTimeout = setTimeout(processNextFile, 15000)
+    processNextFileTimeout = setTimeout(processNextFile, 7000)
   }
 
   const processNextFile = (): void => {
