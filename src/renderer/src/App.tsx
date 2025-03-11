@@ -135,7 +135,7 @@ function App(): JSX.Element {
       restartIntervalId = setInterval(() => {
         console.log('Auto restart running')
         stopStart()
-      }, moment.duration(3, 'hours').asMilliseconds())
+      }, moment.duration(1, 'hours').asMilliseconds())
     }
 
     autoRestart()

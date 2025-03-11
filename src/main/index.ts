@@ -117,8 +117,8 @@ const setTerminal = (color: string, results: string): void => {
 
 const isFileStable = async ({
   filepath,
-  interval = 500,
-  retries = 5
+  interval = 1000,
+  retries = 10
 }: TFileStable): Promise<boolean | void> => {
   let lastSize = 0
 
@@ -132,16 +132,7 @@ const isFileStable = async ({
     lastSize = size
     await new Promise((resolve) => setTimeout(resolve, interval))
   }
-}
-
-const hashedFileName = async (filePath: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const hash = crypto.createHash('md5')
-    const stream = fs.createReadStream(filePath)
-    stream.on('data', (data) => hash.update(data))
-    stream.on('end', () => resolve(hash.digest('hex')))
-    stream.on('error', (err) => reject(err))
-  })
+  return false
 }
 
 const sendDataToComponent = (data: TMessage): void => {
@@ -206,38 +197,78 @@ const startFileWatcher = (): void => {
     const tempDestinationPath = join(pathDay, `${fileName}.tmp`)
     const finalDestinationPath = join(pathDay, fileName)
 
-    await ensureDirectories([pathYear, pathMonth, pathDay])
-
-    await isFileStable({
+    const fileStable = await isFileStable({
       filepath: filePath,
-      interval: 500,
-      retries: 5
+      interval: 1000,
+      retries: 10
     })
 
-    const originalHashFileName = await hashedFileName(filePath)
+    if (!fileStable) {
+      console.error(`File ${filePath} is not stable`)
+      sendDataToComponent({
+        timestamp: dateNow,
+        color: `text-red-500`,
+        text: `File ${filePath} is not stable`
+      })
+      processNextFile()
+      return
+    }
 
-    const max_retries = 3
+    await ensureDirectories([pathYear, pathMonth, pathDay])
+
+    const originalHashFileName = await hashedFileName(filePath, 5, 1000)
+
+    sendDataToComponent({
+      timestamp: dateNow,
+      color: `text-yellow-500`,
+      text: `Created ${originalHashFileName} Hashed File Name`
+    })
+
+    const max_retries = 5
 
     for (let retries = 0; retries < max_retries; retries++) {
       try {
         console.log('Copying file to target directory: ')
         await fsExtra.copy(filePath, tempDestinationPath)
 
-        const copiedHashFileName = await hashedFileName(tempDestinationPath)
+        const copiedHashFileName = await hashedFileName(tempDestinationPath, 5, 1000)
+
+        sendDataToComponent({
+          timestamp: dateNow,
+          color: `text-yellow-500`,
+          text: `Copied ${copiedHashFileName} Hash File Name`
+        })
 
         if (originalHashFileName !== copiedHashFileName) {
-          throw new Error(`Hashed File mismatch: ${fileName}`)
+          sendDataToComponent({
+            timestamp: dateNow,
+            color: `text-red-500`,
+            text: `Hashed File mismatch: ${fileName}`
+          })
+          console.log(`Hashed File mismatch: ${fileName}`)
+          processNextFile()
+          return
         }
 
-        //file renaming
         await fsExtra.move(tempDestinationPath, finalDestinationPath, { overwrite: true })
 
         console.log(`Copied ${fileName} successully`)
+
+        sendDataToComponent({
+          timestamp: dateNow,
+          color: `text-green-500`,
+          text: `Copied ${fileName} successully`
+        })
 
         await finalizedFileProcess(filePath, fileName, finalDestinationPath)
         return
       } catch (error) {
         if (error instanceof Error && 'code' in error) {
+          sendDataToComponent({
+            timestamp: dateNow,
+            color: `text-red-500`,
+            text: `Error: ${error?.message}`
+          })
           await handleFileCopyError(
             error as NodeJS.ErrnoException,
             retries,
@@ -245,9 +276,78 @@ const startFileWatcher = (): void => {
             fileName,
             tempDestinationPath
           )
+          processNextFile()
         }
       }
     }
+  }
+
+  // const hashedFileName = async (filePath: string): Promise<string> => {
+  //   return new Promise((resolve, reject) => {
+  //     const hash = crypto.createHash('md5')
+  //     const stream = fs.createReadStream(filePath)
+  //     stream.on('data', (data) => hash.update(data))
+  //     stream.on('end', () => resolve(hash.digest('hex')))
+  //     stream.on('error', (err) => {
+  //       sendDataToComponent({
+  //         timestamp: dateNow,
+  //         color: `text-red-500`,
+  //         text: `Hash Error: ${err.message}`
+  //       })
+  //       processNextFile()
+  //       reject(err)
+  //     })
+  //   })
+  // }
+
+  interface CustomError extends Error {
+    code?: string
+  }
+
+  const hashedFileName = async (
+    filePath: string,
+    retries = 5,
+    interval = 1000
+  ): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      console.log(`Starting hash for file: ${filePath}`)
+
+      const tryHashFile = (retryCount: number): void => {
+        const hash = crypto.createHash('md5')
+        const stream = fs.createReadStream(filePath)
+
+        stream.on('data', (data) => {
+          console.log(`Hashing data chunk for file: ${filePath}`)
+          hash.update(data)
+        })
+
+        stream.on('end', () => {
+          const hashDigest = hash.digest('hex')
+          console.log(`Hashing completed for file: ${filePath}, Hash: ${hashDigest}`)
+          resolve(hashDigest)
+        })
+
+        stream.on('error', (err: CustomError) => {
+          console.error(`Error hashing file: ${filePath}, Error: ${err.message}`)
+          sendDataToComponent({
+            timestamp: dateNow,
+            color: `text-red-500`,
+            text: `Hash Error: ${err.message}`
+          })
+          if (retryCount > 0 && err.code === 'EBUSY') {
+            console.log(
+              `Retrying hash for file: ${filePath} (${retries - retryCount + 1}/${retries})`
+            )
+            setTimeout(() => tryHashFile(retryCount - 1), interval)
+          } else {
+            processNextFile()
+            reject(err)
+          }
+        })
+      }
+
+      tryHashFile(retries)
+    })
   }
 
   let processNextFileTimeout: NodeJS.Timeout | null = null
@@ -262,13 +362,13 @@ const startFileWatcher = (): void => {
 
       const patientDetails = extractFileName(fileName) // to be used in api call
       console.log('Extracted File Name', patientDetails)
-      //api call here
+
       const templateCode = patientDetails[0]
       const renderNumber = patientDetails[1]
       const patientName = patientDetails[2]
-
+      //api call here
       await updateDocumentPath(templateCode, renderNumber, destinationPath)
-
+      //end api call here
       console.log('LIS TemplateCode', templateCode)
       console.log('Render Number', renderNumber)
       console.log('PatientName', patientName)
@@ -279,22 +379,31 @@ const startFileWatcher = (): void => {
         color: `text-green-500`,
         text: `${patientName} results have been uploaded`
       }
-
+      //send message to component terminal
       sendDataToComponent(data)
-      //end api call here
-
-      //send message to component
     } catch (error) {
       if (error instanceof Error) {
+        const data = {
+          timestamp: dateNow,
+          color: `text-green-500`,
+          text: `Error: ${error.message}`
+        }
+        sendDataToComponent(data)
         console.log(`an error occured ${error?.message}`)
       }
+      const data = {
+        timestamp: dateNow,
+        color: `text-green-500`,
+        text: `Error: ${error}`
+      }
+      sendDataToComponent(data)
     }
 
     if (processNextFileTimeout) {
       clearTimeout(processNextFileTimeout)
     }
 
-    processNextFileTimeout = setTimeout(processNextFile, 15000)
+    processNextFileTimeout = setTimeout(processNextFile, 7000)
   }
 
   const processNextFile = (): void => {
