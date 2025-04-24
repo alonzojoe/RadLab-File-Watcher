@@ -1,9 +1,9 @@
 import sql from 'mssql'
 
 const config = {
-  user: 'sa',
-  password: 'EmedP@ssw0rd',
-  server: '192.163.10.69\\SQL2K14',
+  user: 'IHOMSSQLSRV',
+  password: 'iHOMS2000!',
+  server: '192.190.10.69\\SQL2K14',
   database: 'MedixDB_Live',
   options: {
     enableArithAbort: true,
